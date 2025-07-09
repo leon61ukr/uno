@@ -73,15 +73,17 @@
   <h1>UNO Калькулятор</h1>
 
   <div id="setup">
-    <label>Кількість гравців: <input type="number" id="playerCount" min="2" max="10" value="4"></label>
+    <label>Оберіть кількість гравців (2 ... 10): <input type="number" id="playerCount" min="2" max="10" value="4"></label>
     <div id="names"></div>
-    <label>Режим підрахунку:
+    <label>Оберіть режим підрахунку очків:
       <select id="mode">
         <option value="300">Заруба до 300 (кожен отримує свої очки)</option>
-        <option value="500">Чіл до 500 (переможець раунду отримує суму очків суперників)</option>
+        <option value="500">Стандарт до 500 (переможець раунду отримує суму очків суперників)</option>
       </select>
     </label>
-    <button onclick="startGame()">Почати гру</button>
+    <div class="centered">
+      <button id="startBtn" onclick="startGame()">Почати гру</button>
+    </div>
   </div>
 
   <div id="game" style="display:none">
