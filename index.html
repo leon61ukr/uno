@@ -16,10 +16,10 @@
     h1, h2 { text-align: center; }
     
     input {
-      width: 60px;
+      text-align: center;
+      width: 50px;
       font-size: 1rem;
       padding: 0.5rem;
-      margin: 0.25rem;
       border-radius: 8px;
       border: none;
      }
@@ -77,8 +77,8 @@
     <div id="names"></div>
     <label>Режим підрахунку:
       <select id="mode">
-        <option value="500">До 500 (переможець отримує суму)</option>
-        <option value="300">До 300 (переможець не отримує очок)</option>
+        <option value="300">Заруба до 300 (кожен отримує свої очки)</option>
+        <option value="500">Чіл до 500 (переможець раунду отримує суму очків суперників)</option>
       </select>
     </label>
     <button onclick="startGame()">Почати гру</button>
@@ -92,7 +92,7 @@
     <div id="result"></div>
     
 <form id="roundForm" onsubmit="addRound(event)">
-  <div id="roundInputs"></div> <!-- без класу -->
+  <div id="roundInputs"></div>
   <button type="submit">Додати раунд</button>
 </form>
     
@@ -112,7 +112,7 @@
  <script>
 let players = [];
 let scores = [];
-let mode = "500";
+let mode = "300";
 let stars = [];
 let editIndex = null;
 
