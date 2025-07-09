@@ -32,7 +32,8 @@
       border: none;
     }
     button { background: #333; color: white; }
-    .player-setup, .round-input { margin: 1rem 0; }
+    .player-setup, { margin: 1rem 0; }
+        
     table {
       width: 100%;
       border-collapse: collapse;
@@ -90,10 +91,10 @@
     </div>
     <div id="result"></div>
     
-     <form id="roundForm" onsubmit="addRound(event)">
-      <div class="round-input" id="roundInputs"></div>
-      <button type="submit">Додати раунд</button>
-    </form>
+<form id="roundForm" onsubmit="addRound(event)">
+  <div id="roundInputs"></div> <!-- без класу -->
+  <button type="submit">Додати раунд</button>
+</form>
     
 <div class="centered">
   <button onclick="confirmRestart()">Нова гра з тими ж гравцями</button>
@@ -188,9 +189,12 @@ function renderRoundInputs() {
   players.forEach((_, i) => {
     const td = document.createElement("td");
     const input = document.createElement("input");
-    input.type = "text";
+    input.type = "tel";
+    input.inputMode = "numeric";
+    input.pattern = "-?[0-9]*";
     input.placeholder = "0 або -";
     input.id = `score_${i}`;
+    input.className = "round-input"; // ✅ КЛАС НА ІНПУТІ
     td.appendChild(input);
     inputRow.appendChild(td);
   });
@@ -200,6 +204,8 @@ function renderRoundInputs() {
   container.appendChild(document.createElement("br"));
   container.appendChild(table);
 }
+
+   
 
 function addRound(e) {
   e.preventDefault();
@@ -373,8 +379,6 @@ function doRestart() {
   }
 }
 </script>
-
-   
 
 </body>
 </html>
