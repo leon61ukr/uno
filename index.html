@@ -14,7 +14,6 @@
       padding: 1rem;
     }
     h1, h2 { text-align: center; }
-    
     input {
       text-align: center;
       width: 50px;
@@ -22,8 +21,7 @@
       padding: 0.5rem;
       border-radius: 8px;
       border: none;
-     }
-   
+    }
     select, button {
       font-size: 1rem;
       padding: 0.5rem;
@@ -33,7 +31,6 @@
     }
     button { background: #333; color: white; }
     .player-setup, { margin: 1rem 0; }
-        
     table {
       width: 100%;
       border-collapse: collapse;
@@ -50,6 +47,9 @@
     .edit-btn { cursor: pointer; color: #0af; margin-left: 5px; }
     .scroll-container { overflow-x: auto; }
     .centered { text-align: center; margin-top: 2rem; }
+    .active-cell {
+      background-color: #333 !important;
+    }
     #confirmDialog {
       display: none;
       position: fixed;
@@ -71,6 +71,7 @@
 </head>
 <body>
   <h1>UNO Калькулятор</h1>
+  <p style="text-align:center;font-size:0.9rem">Даблтап по імені — обрати стартового гравця</p>
 
   <div id="setup">
     <label>Оберіть кількість гравців (2 ... 10): <input type="number" id="playerCount" min="2" max="10" value="4"></label>
@@ -93,294 +94,304 @@
     </div>
     <div id="result"></div>
     
-<form id="roundForm" onsubmit="addRound(event)">
-  <div id="roundInputs"></div>
-  <button type="submit">Додати раунд</button>
-</form>
+    <form id="roundForm" onsubmit="addRound(event)">
+      <div id="roundInputs"></div>
+      <button type="submit">Додати раунд</button>
+    </form>
     
-<div class="centered">
-  <button onclick="confirmRestart()">Нова гра з тими ж гравцями</button>
-  <button onclick="confirmFullRestart()">Нова гра (очистити все)</button>
-</div>
+    <div class="centered">
+      <button onclick="confirmRestart()">Нова гра з тими ж гравцями</button>
+      <button onclick="confirmFullRestart()">Нова гра (очистити все)</button>
+    </div>
 
-<div id="confirmDialog">
-  <div id="confirmBox">
-    <p>Ви впевнені, що хочете почати нову гру?</p>
-    <button onclick="doRestart()">ТАК</button>
-    <button onclick="cancelRestart()">НІ</button>
+    <div id="confirmDialog">
+      <div id="confirmBox">
+        <p>Ви впевнені, що хочете почати нову гру?</p>
+        <button onclick="doRestart()">ТАК</button>
+        <button onclick="cancelRestart()">НІ</button>
+      </div>
+    </div>
   </div>
-</div>
 
- <script>
-let players = [];
-let scores = [];
-let mode = "300";
-let stars = [];
-let editIndex = null;
+  <script>
+    let players = [];
+    let scores = [];
+    let mode = "300";
+    let stars = [];
+    let editIndex = null;
+    let startPlayerIndex = null;
 
-function saveState() {
-  localStorage.setItem("uno_state", JSON.stringify({ players, scores, mode }));
-}
+    function saveState() {
+      localStorage.setItem("uno_state", JSON.stringify({ players, scores, mode, startPlayerIndex }));
+    }
 
-function loadState() {
-  const saved = localStorage.getItem("uno_state");
-  if (saved) {
-    const state = JSON.parse(saved);
-    players = state.players || [];
-    scores = state.scores || [];
-    mode = state.mode || "500";
-    if (players.length) {
+    function loadState() {
+      const saved = localStorage.getItem("uno_state");
+      if (saved) {
+        const state = JSON.parse(saved);
+        players = state.players || [];
+        scores = state.scores || [];
+        mode = state.mode || "500";
+        startPlayerIndex = state.startPlayerIndex ?? null;
+        if (players.length) {
+          document.getElementById("setup").style.display = "none";
+          document.getElementById("game").style.display = "block";
+          renderRoundInputs();
+          renderTable();
+        }
+      }
+    }
+
+    function startGame() {
+      const count = +document.getElementById("playerCount").value;
+      players = [];
+      for (let i = 0; i < count; i++) {
+        const name = document.getElementById("name_" + i).value || `Гравець ${i + 1}`;
+        players.push(name);
+      }
+      mode = document.getElementById("mode").value;
+      scores = [];
+      startPlayerIndex = null;
       document.getElementById("setup").style.display = "none";
       document.getElementById("game").style.display = "block";
       renderRoundInputs();
       renderTable();
+      saveState();
     }
-  }
-}
 
-function startGame() {
-  const count = +document.getElementById("playerCount").value;
-  players = [];
-  for (let i = 0; i < count; i++) {
-    const name = document.getElementById("name_" + i).value || `Гравець ${i + 1}`;
-    players.push(name);
-  }
-  mode = document.getElementById("mode").value;
-  scores = [];
-  document.getElementById("setup").style.display = "none";
-  document.getElementById("game").style.display = "block";
-  renderRoundInputs();
-  renderTable();
-  saveState();
-}
-
-function renderNameInputs() {
-  const count = +document.getElementById("playerCount").value;
-  const container = document.getElementById("names");
-  container.innerHTML = "";
-  for (let i = 0; i < count; i++) {
-    const div = document.createElement("div");
-    const input = document.createElement("input");
-    input.placeholder = `Гравець ${i + 1}`;
-    input.id = "name_" + i;
-    div.appendChild(input);
-    container.appendChild(div);
-  }
-}
-
-document.getElementById("playerCount").addEventListener("input", renderNameInputs);
-renderNameInputs();
-loadState();
-
-function renderRoundInputs() {
-  const container = document.getElementById("roundInputs");
-  container.innerHTML = "";
-
-  const table = document.createElement("table");
-  table.style.marginTop = "1rem";
-
-  const headRow = document.createElement("tr");
-  players.forEach(p => {
-    const th = document.createElement("th");
-    th.textContent = p;
-    headRow.appendChild(th);
-  });
-  table.appendChild(headRow);
-
-  const inputRow = document.createElement("tr");
-  players.forEach((_, i) => {
-    const td = document.createElement("td");
-    const input = document.createElement("input");
-    input.type = "tel";
-    input.inputMode = "numeric";
-    input.pattern = "-?[0-9]*";
-    input.placeholder = "Очки";
-    input.id = `score_${i}`;
-    input.className = "round-input"; // ✅ КЛАС НА ІНПУТІ
-    td.appendChild(input);
-    inputRow.appendChild(td);
-  });
-  table.appendChild(inputRow);
-
-  container.appendChild(document.createTextNode("..."));
-  container.appendChild(document.createElement("br"));
-  container.appendChild(table);
-}
-
-   
-
-function addRound(e) {
-  e.preventDefault();
-  let round = [];
-  let winnerIndexes = [];
-
-  for (let i = 0; i < players.length; i++) {
-    const val = document.getElementById(`score_${i}`).value.trim();
-    if (val === "-" || val === "") {
-      winnerIndexes.push(i);
-    }
-  }
-
-  if (winnerIndexes.length !== 1) {
-    alert("Має бути рівно один переможець (залишити порожнє поле або '-')");
-    return;
-  }
-
-  const winner = winnerIndexes[0];
-
-  if (mode === "500") {
-    let sum = 0;
-    for (let i = 0; i < players.length; i++) {
-      const val = document.getElementById(`score_${i}`).value.trim();
-      if (i !== winner) {
-        const num = parseInt(val);
-        if (!isNaN(num)) sum += num;
+    function renderNameInputs() {
+      const count = +document.getElementById("playerCount").value;
+      const container = document.getElementById("names");
+      container.innerHTML = "";
+      for (let i = 0; i < count; i++) {
+        const div = document.createElement("div");
+        const input = document.createElement("input");
+        input.placeholder = `Гравець ${i + 1}`;
+        input.id = "name_" + i;
+        div.appendChild(input);
+        container.appendChild(div);
       }
     }
-    for (let i = 0; i < players.length; i++) {
-      round[i] = i === winner ? sum : 0;
-    }
-  } else {
-    for (let i = 0; i < players.length; i++) {
-      const val = document.getElementById(`score_${i}`).value.trim();
-      if (i === winner) {
-        round[i] = 0;
-      } else {
-        const num = parseInt(val);
-        round[i] = !isNaN(num) ? num : 0;
-      }
-    }
-  }
 
-  const roundObj = { scores: round, winner };
-
-  if (editIndex !== null) {
-    scores[editIndex] = roundObj;
-    editIndex = null;
-  } else {
-    scores.push(roundObj);
-  }
-
-  renderTable();
-  renderRoundInputs();
-  saveState();
-}
-
-function isStarEntry(roundIdx, playerIdx) {
-  const roundObj = scores[roundIdx];
-  return roundObj.winner === playerIdx;
-}
-
-function renderTable() {
-  const table = document.getElementById("scoreTable");
-  table.innerHTML = "";
-
-  const starsPerPlayer = Array(players.length).fill(0);
-  const header = document.createElement("tr");
-  const goatIndexes = getGoatIndexes();
-
-  header.innerHTML = `<th>Раунд</th>` + players.map((p, i) => `<th>${p} ${goatIndexes.includes(i) ? '🐐' : ''}</th>`).join("");
-  table.appendChild(header);
-
-  scores.forEach((roundObj, idx) => {
-    const row = roundObj.scores;
-    const tr = document.createElement("tr");
-    const cells = row.map((val, i) => {
-      const isStar = isStarEntry(idx, i);
-      if (isStar) starsPerPlayer[i]++;
-      return `<td>${isStar ? '⭐' : val}</td>`;
-    });
-    tr.innerHTML = `<td>${idx + 1}<span class="edit-btn" onclick="editRound(${idx})">✏️</span></td>` + cells.join("");
-    table.appendChild(tr);
-  });
-
-  const totalRow = document.createElement("tr");
-  totalRow.innerHTML = `<td><strong>Сума</strong></td>` + players.map((_, i) => {
-    const sum = scores.reduce((a, r) => a + r.scores[i], 0);
-    return `<td><strong>${sum}</strong></td>`;
-  }).join("");
-  table.appendChild(totalRow);
-
-  stars = starsPerPlayer;
-  checkWinner();
-}
-
-function getGoatIndexes() {
-  const starCounts = players.map((_, i) => {
-    return scores.reduce((count, _, roundIdx) => {
-      return count + (isStarEntry(roundIdx, i) ? 1 : 0);
-    }, 0);
-  });
-
-  const maxStars = Math.max(...starCounts);
-  return starCounts.reduce((arr, count, i) => {
-    if (count === maxStars && maxStars > 0) arr.push(i);
-    return arr;
-  }, []);
-}
-
-function checkWinner() {
-  const totals = players.map((_, i) => scores.reduce((a, r) => a + r.scores[i], 0));
-  const resultDiv = document.getElementById("result");
-  resultDiv.innerHTML = "";
-
-  if (mode === "500") {
-    const winnerIndexes = totals.map((t, i) => t >= 500 ? i : -1).filter(i => i !== -1);
-    if (winnerIndexes.length) {
-      resultDiv.innerHTML = winnerIndexes.map(i => `<h2>🏆 ${players[i]} переміг!</h2>`).join("");
-    }
-  } else {
-    const loserIndexes = totals.map((t, i) => t >= 300 ? i : -1).filter(i => i !== -1);
-    if (loserIndexes.length) {
-      resultDiv.innerHTML = loserIndexes.map(i => `<h2>💀 ${players[i]} програв!</h2>`).join("");
-    }
-  }
-}
-
-function editRound(index) {
-  const roundObj = scores[index];
-  players.forEach((p, i) => {
-    const isWinner = roundObj.winner === i;
-    document.getElementById(`score_${i}`).value = isWinner ? "" : roundObj.scores[i];
-  });
-  editIndex = index;
-}
-
-function confirmRestart() {
-  document.getElementById("confirmDialog").style.display = "flex";
-  document.getElementById("confirmBox").dataset.type = "soft";
-}
-
-function confirmFullRestart() {
-  document.getElementById("confirmDialog").style.display = "flex";
-  document.getElementById("confirmBox").dataset.type = "hard";
-}
-
-function cancelRestart() {
-  document.getElementById("confirmDialog").style.display = "none";
-}
-
-function doRestart() {
-  const type = document.getElementById("confirmBox").dataset.type;
-  document.getElementById("confirmDialog").style.display = "none";
-
-  if (type === "soft") {
-    scores = [];
-    document.getElementById("result").innerHTML = "";
-    renderTable();
-    renderRoundInputs();
-    saveState();
-  } else {
-    players = [];
-    scores = [];
-    mode = "500";
-    localStorage.removeItem("uno_state");
-    document.getElementById("setup").style.display = "block";
-    document.getElementById("game").style.display = "none";
+    document.getElementById("playerCount").addEventListener("input", renderNameInputs);
     renderNameInputs();
-  }
-}
-</script>
+    loadState();
 
+    function renderRoundInputs() {
+      const container = document.getElementById("roundInputs");
+      container.innerHTML = "";
+
+      const table = document.createElement("table");
+      table.style.marginTop = "1rem";
+
+      const headRow = document.createElement("tr");
+      players.forEach(p => {
+        const th = document.createElement("th");
+        th.textContent = p;
+        table.appendChild(th);
+        headRow.appendChild(th);
+      });
+      table.appendChild(headRow);
+
+      const inputRow = document.createElement("tr");
+      players.forEach((_, i) => {
+        const td = document.createElement("td");
+        const input = document.createElement("input");
+        input.type = "tel";
+        input.inputMode = "numeric";
+        input.pattern = "-?[0-9]*";
+        input.placeholder = "Очки";
+        input.id = `score_${i}`;
+        input.className = "round-input";
+        td.appendChild(input);
+        inputRow.appendChild(td);
+      });
+      table.appendChild(inputRow);
+
+      container.appendChild(document.createTextNode("..."));
+      container.appendChild(document.createElement("br"));
+      container.appendChild(table);
+    }
+
+    function addRound(e) {
+      e.preventDefault();
+      let round = [];
+      let winnerIndexes = [];
+
+      for (let i = 0; i < players.length; i++) {
+        const val = document.getElementById(`score_${i}`).value.trim();
+        if (val === "-" || val === "") {
+          winnerIndexes.push(i);
+        }
+      }
+
+      if (winnerIndexes.length !== 1) {
+        alert("Має бути рівно один переможець (залишити порожнє поле або '-')");
+        return;
+      }
+
+      const winner = winnerIndexes[0];
+
+      if (mode === "500") {
+        let sum = 0;
+        for (let i = 0; i < players.length; i++) {
+          const val = document.getElementById(`score_${i}`).value.trim();
+          if (i !== winner) {
+            const num = parseInt(val);
+            if (!isNaN(num)) sum += num;
+          }
+        }
+        for (let i = 0; i < players.length; i++) {
+          round[i] = i === winner ? sum : 0;
+        }
+      } else {
+        for (let i = 0; i < players.length; i++) {
+          const val = document.getElementById(`score_${i}`).value.trim();
+          round[i] = (i === winner) ? 0 : parseInt(val) || 0;
+        }
+      }
+
+      const roundObj = { scores: round, winner };
+
+      if (editIndex !== null) {
+        scores[editIndex] = roundObj;
+        editIndex = null;
+      } else {
+        scores.push(roundObj);
+      }
+
+      renderTable();
+      renderRoundInputs();
+      saveState();
+    }
+
+    function isStarEntry(roundIdx, playerIdx) {
+      const roundObj = scores[roundIdx];
+      return roundObj.winner === playerIdx;
+    }
+
+    function setStartPlayer(index) {
+      startPlayerIndex = index;
+      saveState();
+      renderTable();
+    }
+
+    function renderTable() {
+      const table = document.getElementById("scoreTable");
+      table.innerHTML = "";
+
+      const starsPerPlayer = Array(players.length).fill(0);
+      const header = document.createElement("tr");
+      const goatIndexes = getGoatIndexes();
+
+      header.innerHTML = `<th>Раунд</th>` + players.map((p, i) =>
+        `<th ondblclick="setStartPlayer(${i})">${p} ${goatIndexes.includes(i) ? '🐐' : ''}</th>`
+      ).join("");
+      table.appendChild(header);
+
+      scores.forEach((roundObj, idx) => {
+        const row = roundObj.scores;
+        const tr = document.createElement("tr");
+        const currentPlayerIndex = (startPlayerIndex !== null) ? (startPlayerIndex + idx) % players.length : null;
+
+        const cells = row.map((val, i) => {
+          const isStar = isStarEntry(idx, i);
+          const isActive = i === currentPlayerIndex;
+          if (isStar) starsPerPlayer[i]++;
+          return `<td class="${isActive ? 'active-cell' : ''}">${isStar ? '⭐' : val}</td>`;
+        });
+
+        tr.innerHTML = `<td>${idx + 1}<span class="edit-btn" onclick="editRound(${idx})">✏️</span></td>` + cells.join("");
+        table.appendChild(tr);
+      });
+
+      const totalRow = document.createElement("tr");
+      totalRow.innerHTML = `<td><strong>Сума</strong></td>` + players.map((_, i) => {
+        const sum = scores.reduce((a, r) => a + r.scores[i], 0);
+        return `<td><strong>${sum}</strong></td>`;
+      }).join("");
+      table.appendChild(totalRow);
+
+      stars = starsPerPlayer;
+      checkWinner();
+    }
+
+    function getGoatIndexes() {
+      const starCounts = players.map((_, i) => {
+        return scores.reduce((count, _, roundIdx) => {
+          return count + (isStarEntry(roundIdx, i) ? 1 : 0);
+        }, 0);
+      });
+
+      const maxStars = Math.max(...starCounts);
+      return starCounts.reduce((arr, count, i) => {
+        if (count === maxStars && maxStars > 0) arr.push(i);
+        return arr;
+      }, []);
+    }
+
+    function checkWinner() {
+      const totals = players.map((_, i) => scores.reduce((a, r) => a + r.scores[i], 0));
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "";
+
+      if (mode === "500") {
+        const winnerIndexes = totals.map((t, i) => t >= 500 ? i : -1).filter(i => i !== -1);
+        if (winnerIndexes.length) {
+          resultDiv.innerHTML = winnerIndexes.map(i => `<h2>🏆 ${players[i]} переміг!</h2>`).join("");
+        }
+      } else {
+        const loserIndexes = totals.map((t, i) => t >= 300 ? i : -1).filter(i => i !== -1);
+        if (loserIndexes.length) {
+          resultDiv.innerHTML = loserIndexes.map(i => `<h2>💀 ${players[i]} програв!</h2>`).join("");
+        }
+      }
+    }
+
+    function editRound(index) {
+      const roundObj = scores[index];
+      players.forEach((p, i) => {
+        const isWinner = roundObj.winner === i;
+        document.getElementById(`score_${i}`).value = isWinner ? "" : roundObj.scores[i];
+      });
+      editIndex = index;
+    }
+
+    function confirmRestart() {
+      document.getElementById("confirmDialog").style.display = "flex";
+      document.getElementById("confirmBox").dataset.type = "soft";
+    }
+
+    function confirmFullRestart() {
+      document.getElementById("confirmDialog").style.display = "flex";
+      document.getElementById("confirmBox").dataset.type = "hard";
+    }
+
+    function cancelRestart() {
+      document.getElementById("confirmDialog").style.display = "none";
+    }
+
+    function doRestart() {
+      const type = document.getElementById("confirmBox").dataset.type;
+      document.getElementById("confirmDialog").style.display = "none";
+
+      if (type === "soft") {
+        scores = [];
+        document.getElementById("result").innerHTML = "";
+        renderTable();
+        renderRoundInputs();
+        saveState();
+      } else {
+        players = [];
+        scores = [];
+        mode = "500";
+        startPlayerIndex = null;
+        localStorage.removeItem("uno_state");
+        document.getElementById("setup").style.display = "block";
+        document.getElementById("game").style.display = "none";
+        renderNameInputs();
+      }
+    }
+  </script>
 </body>
 </html>
