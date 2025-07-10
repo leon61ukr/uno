@@ -608,24 +608,33 @@ animation: pulsate 1.5s infinite alternate;
                     return arr;
                 }, []);
             }
-
-            function checkWinner() {
-                const totals = players.map((_, i) => scores.reduce((a, r) => a + r.scores[i], 0));
-                const resultDiv = document.getElementById("result");
-                resultDiv.innerHTML = "";
-
-                if (mode === "500") {
-                    const winnerIndexes = totals.map((t, i) => (t >= 500 ? i : -1)).filter((i) => i !== -1);
-                    if (winnerIndexes.length) {
-                        resultDiv.innerHTML = winnerIndexes.map((i) => `<h2>🏆 ${players[i]} переміг!</h2>`).join("");
-                    }
-                } else {
-                    const loserIndexes = totals.map((t, i) => (t >= 300 ? i : -1)).filter((i) => i !== -1);
-                    if (loserIndexes.length) {
-                        resultDiv.innerHTML = loserIndexes.map((i) => `<h2>💀 ${players[i]} програв!</h2>`).join("");
-                    }
-                }
-            }
+       function checkWinner() {
+           const totals = players.map((_, i) => scores.reduce((a, r) => a + r.scores[i], 0));
+           const resultDiv = document.getElementById("result");
+           
+           let message = "";
+           
+           if (mode === "500") {
+               const winnerIndexes = totals.map((t, i) => (t >= 500 ? i : -1)).filter((i) => i !== -1);
+               if (winnerIndexes.length) {
+                   message = winnerIndexes.map((i) => `<h2>🏆 ${players[i]} переміг!</h2>`).join("");
+               }
+           } else {
+               const loserIndexes = totals.map((t, i) => (t >= 300 ? i : -1)).filter((i) => i !== -1);
+               if (loserIndexes.length) {
+                   message = loserIndexes.map((i) => {
+                       const randomMsg = funnyMessages[Math.floor(Math.random() * funnyMessages.length)]
+                           .replace(/{{player}}/g, players[i]);
+                       return `<h2 style="margin-bottom: 0;">💀 ${players[i]} програв!</h2>
+                       <p style="margin-top: 4px; text-align: center;">${randomMsg}</p>`;
+                   }).join("");
+               }
+           }
+           
+           if (message) {
+               resultDiv.innerHTML = message;
+           }
+       }
 
             function editRound(index) {
                 const roundObj = scores[index];
@@ -704,7 +713,32 @@ animation: pulsate 1.5s infinite alternate;
                 title.classList.add("fire-mode");
                 title.innerHTML = `<img src="fire.gif" alt="fire">  UNO  <img src="fire.gif" alt="fire">`;
             }
+       const funnyMessages = [
+            `Схоже, що сьогодні не {{player}} день 🎲`,
+            `Ну буває, {{player}}, наступного разу повезе! 😂`,
+            `Можна я за тебе зіграю? 😜`,
+            `UNO каже {{player}}: спробуй ще 🔥`,
+            `🐸 не врятувала {{player}}`,
+            `Діла ішли не те шо х..во, но і нізя сказать шо харашо`,
+            `UNO каже {{player}}: спробуй ще 🔥`,
+            `Схоже, {{player}} сьогодні залишив удачу вдома 😅`,
+            `{{player}}, UNO тебе зробило 👊`,
+            `Ну що, {{player}}, каву з поразкою будеш? ☕️😂`,
+            `В кого мінус мораль? Правильно, в {{player}} 🎲`,
+            `{{player}}, наступного разу візьми талісман 🍀`,
+            `UNO каже: {{player}}, спробуй ще 🔥`,
+            `{{player}}, ти офіційно головний спонсор чужих очок 🎁`,
+            `Легенди казали, що {{player}} колись вигравав... але це не точно 😆`,
+            `Рекорд по антирезультату! {{player}}, ти топчик 💀`,
+            `Так тримати, {{player}}! І наступного разу програєш стильно 🎉`,
+            `UNO: {{player}}, підпиши контракт лузера 📝`,
+            `Навіть картковий оракул передбачав твою поразку, {{player}} 🔮`,
+            `UNO кричить: Астанавітєсь! Але {{player}} продовжує набирати очки 📈`,
+            `Хтось викличе швидку для {{player}} — UNO вбиває 💥`,
+            `{{player}}, спойлер: ти все одно програв би 😏`,
+            `{{player}}, це була найкраща НАЙШІРША гра яку я бачив`,
+            `{{player}}, просто подякуй за останню чорну +4 карточку`
+       ];
         </script>
-  
     </body>
 </html>
