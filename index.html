@@ -53,25 +53,21 @@
                 transition: all 0.3s ease;
                 text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
             }
-
             #startBtn:hover {
                 background: linear-gradient(to bottom, #66bb6a, #43a047);
                 box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
                 transform: translateY(-2px);
             }
-
             #startBtn:active {
                 background: linear-gradient(to bottom, #388e3c, #2e7d32);
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
                 transform: translateY(1px);
             }
-
             #mode-options {
                 display: flex;
                 flex-direction: column;
                 gap: 1rem;
             }
-
             .mode-option {
                 border: 2px solid #333;
                 border-radius: 10px;
@@ -80,16 +76,13 @@
                 transition: all 0.2s ease;
                 background: #1a1a1a;
             }
-
             .mode-option:hover {
                 background: #2a2a2a;
             }
-
             .mode-option.selected {
                 border-color: #0af;
                 background: #0a0a0a;
             }
-
             .player-setup {
                 margin: 1rem 0;
             }
@@ -115,7 +108,6 @@
                 margin: 2rem auto;
                 box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             }
-
             .setup-card h2 {
                 margin-bottom: 1rem;
             }
@@ -123,18 +115,6 @@
                 display: block;
                 margin-bottom: 1rem;
             }
-            /* .setup-card input[type="number"],
-.setup-card input[type="text"],
-.setup-card select {
-    width: 100%;
-    font-size: 1rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 8px;
-    border: none;
-    background: #222;
-    color: #fff;
-    margin-top: 0.5rem;
-}*/
             .setup-card input[type="number"],
             .setup-card input[type="text"],
             .setup-card select {
@@ -146,7 +126,6 @@
                 background: #222;
                 color: #fff;
             }
-
             .name-input {
                 margin-bottom: 0.75rem;
             }
@@ -161,7 +140,6 @@
                 border: none;
                 margin-top: 1.5rem;
             }
-
             .winner {
                 background: #224422;
             }
@@ -200,6 +178,33 @@
             }
             #confirmBox button {
                 margin: 1rem;
+            }
+            /* Для ЗАРУБА 🔥 (300) */
+            .setup-card.zaruba-mode .mode-option.selected {
+                border-color: #c41a16;
+            }
+            .setup-card.zaruba-mode input[type="number"] {
+                color: #c41a16;
+            }
+            .setup-card.zaruba-mode input[type="text"] {
+                color: #c41a16;
+            }
+            .setup-card.zaruba-mode .name-input::placeholder {
+                color: #c41a16;
+            }
+
+            /* Для КЛАСИКА 🧊 (500) */
+            .setup-card.classic-mode .mode-option.selected {
+                border-color: #0af;
+            }
+            .setup-card.classic-mode input[type="number"] {
+                color: #0af;
+            }
+            .setup-card.classic-mode input[type="text"] {
+                color: #0af;
+            }
+            .setup-card.classic-mode .name-input::placeholder {
+                color: #0af;
             }
         </style>
     </head>
@@ -568,6 +573,24 @@
                     document.getElementById("setup").style.display = "block";
                     document.getElementById("game").style.display = "none";
                     renderNameInputs();
+                }
+            }
+            function selectMode(el) {
+                // зняти попередній вибір
+                document.querySelectorAll(".mode-option").forEach((option) => option.classList.remove("selected"));
+                el.classList.add("selected");
+
+                // записати вибране значення
+                document.getElementById("mode").value = el.getAttribute("data-value");
+
+                // оновити клас на setup-card для кольорових стилів
+                const setupCard = document.querySelector(".setup-card");
+                setupCard.classList.remove("zaruba-mode", "classic-mode");
+
+                if (el.getAttribute("data-value") === "300") {
+                    setupCard.classList.add("zaruba-mode");
+                } else if (el.getAttribute("data-value") === "500") {
+                    setupCard.classList.add("classic-mode");
                 }
             }
         </script>
