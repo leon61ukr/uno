@@ -149,9 +149,7 @@
                 color: #0af;
                 margin-left: 5px;
             }
-            .scroll-container {
-                overflow-x: auto;
-            }
+            /*.scroll-container {overflow-x: auto;}*/
             .centered {
                 text-align: center;
                 margin-top: 2rem;
@@ -207,6 +205,30 @@
             .setup-card.classic-mode .name-input::placeholder {
                 color: #0af;
             }
+            /* стиль тексту при першому запуску і пустій таблиці */
+            .empty-message {
+                padding: 1rem;
+                text-align: center;
+                font-size: 1.2rem;
+                color: #ccc;
+            }
+            .footer-buttons {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                padding: 0.5rem;
+                display: flex;
+                justify-content: center;
+                gap: 0.5rem;
+                z-index: 999;
+            }
+
+            .footer-buttons button {
+                max-width: 150px;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
         </style>
     </head>
     <body>
@@ -251,15 +273,20 @@
                 <table id="scoreTable"></table>
             </div>
             <div id="result"></div>
+            <div id="emptyTableMessage" class="empty-message">
+                ‼️Введіть очки гравців за перший раунд‼️<br />
+                Для переможця поле залишити пустим.<br />
+                ↙️ ↙️ ↙️
+            </div>
 
             <form id="roundForm" onsubmit="addRound(event)">
                 <div id="roundInputs"></div>
                 <button type="submit">Додати раунд</button>
             </form>
 
-            <div class="centered">
-                <button onclick="confirmRestart()">Нова гра з тими ж гравцями</button>
-                <button onclick="confirmFullRestart()">Нова гра (очистити все)</button>
+            <div class="footer-buttons">
+                <button onclick="confirmRestart()">🔄 Нова гра з тими ж гравцями</button>
+                <button onclick="confirmFullRestart()">❌ Нова гра (скинути все)</button>
             </div>
 
             <div id="confirmDialog">
@@ -372,8 +399,8 @@
                 });
                 table.appendChild(inputRow);
 
-                container.appendChild(document.createTextNode("..."));
-                container.appendChild(document.createElement("br"));
+                //container.appendChild(document.createTextNode("..."));
+                //container.appendChild(document.createElement("br"));
                 container.appendChild(table);
             }
 
@@ -442,7 +469,11 @@
 
             function renderTable() {
                 const table = document.getElementById("scoreTable");
+                const message = document.getElementById("emptyTableMessage");
                 table.innerHTML = "";
+
+                // показати/сховати повідомлення про порожню таблицю
+                message.style.display = scores.length === 0 ? "block" : "none";
 
                 const starsPerPlayer = Array(players.length).fill(0);
                 const header = document.createElement("tr");
@@ -479,6 +510,7 @@
                     table.appendChild(tr);
                 });
 
+                // сума
                 const totalRow = document.createElement("tr");
                 totalRow.innerHTML =
                     `<td><strong>Сума</strong></td>` +
