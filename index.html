@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>UNO Калькулятор</title>
+        <title>🗒️Блокнот для UNO</title>
         <style>
             :root {
                 color-scheme: dark;
@@ -14,6 +14,7 @@
                 background: #111;
                 color: #fff;
                 padding: 1rem;
+                padding-bottom: 80px;
             }
             h1,
             h2 {
@@ -36,6 +37,7 @@
                 padding: 0.5rem;
                 border-radius: 8px;
                 border: none;
+                margin-top: 0.5rem;
             }
             button {
                 background: #333;
@@ -109,6 +111,7 @@
                 box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             }
             .setup-card h2 {
+                margin-top: 0.5rem;
                 margin-bottom: 1rem;
             }
             .setup-card label {
@@ -139,7 +142,7 @@
                 background: #333;
                 color: #fff;
                 border: none;
-                margin-top: 1.5rem;
+                margin-top: 0.5rem;
             }
             .winner {
                 background: #224422;
@@ -213,7 +216,7 @@
                 color: #ccc;
             }
             .footer-buttons {
-                position: fixed;
+/*                 position: fixed; */
                 bottom: 0;
                 left: 0;
                 width: 100%;
@@ -221,7 +224,7 @@
                 display: flex;
                 justify-content: center;
                 gap: 0.5rem;
-                z-index: 999;
+/*                 z-index: 999; */
             }
 
             .footer-buttons button {
@@ -333,7 +336,7 @@ animation: pulsate 1.5s infinite alternate;
 
         <form id="roundForm" onsubmit="addRound(event)">
             <div id="roundInputs"></div>
-            <button type="submit">Додати раунд</button>
+            <button type="submit">✅💾Зберегти результат</button>
         </form>
 
         <div class="footer-buttons">
