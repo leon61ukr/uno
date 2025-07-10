@@ -5,351 +5,353 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>UNO Калькулятор</title>
         <style>
-                        :root {
-                            color-scheme: dark;
-                        }
-                        body {
-                            margin: 0;
-                            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-                            background: #111;
-                            color: #fff;
-                            padding: 1rem;
-                        }
-                        h1,
-                        h2 {
-                            text-align: center;
-                        }
-                        input {
-                            text-align: center;
-                            width: 50px;
-                            font-size: 1rem;
-                            padding: 0.5rem;
-                            border-radius: 8px;
-                            border: none;
-                        }
-                        .name-input::placeholder {
-                            color: #fff;
-                        }
-                        select,
-                        button {
-                            font-size: 1rem;
-                            padding: 0.5rem;
-                            border-radius: 8px;
-                            border: none;
-                        }
-                        button {
-                            background: #333;
-                            color: white;
-                        }
-                        #startBtn {
-                            background: linear-gradient(to bottom, #4caf50, #388e3c);
-                            color: #fff;
-                            border: none;
-                            padding: 12px 24px;
-                            font-size: 18px;
-                            border-radius: 12px;
-                            cursor: pointer;
-                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-                            transition: all 0.3s ease;
-                            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-                        }
-                        #startBtn:hover {
-                            background: linear-gradient(to bottom, #66bb6a, #43a047);
-                            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-                            transform: translateY(-2px);
-                        }
-                        #startBtn:active {
-                            background: linear-gradient(to bottom, #388e3c, #2e7d32);
-                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-                            transform: translateY(1px);
-                        }
-                        #mode-options {
-                            display: flex;
-                            flex-direction: column;
-                            gap: 1rem;
-                        }
-                        .mode-option {
-                            border: 2px solid #333;
-                            border-radius: 10px;
-                            padding: 1rem;
-                            cursor: pointer;
-                            transition: all 0.2s ease;
-                            background: #1a1a1a;
-                        }
-                        .mode-option:hover {
-                            background: #2a2a2a;
-                        }
-                        .mode-option.selected {
-                            border-color: #0af;
-                            background: #0a0a0a;
-                        }
-                        .player-setup {
-                            margin: 1rem 0;
-                        }
-                        table {
-                            width: 100%;
-                            border-collapse: collapse;
-                            margin-top: 1rem;
-                            table-layout: fixed;
-                        }
-                        th,
-                        td {
-                            border: 1px solid #333;
-                            padding: 0.5rem;
-                            text-align: center;
-                            width: 1%;
-                        }
-                        .setup-card {
-                            background: #1a1a1a;
-                            border-radius: 12px;
-                            padding: 2rem;
-                            padding-top: 8px;
-                            max-width: 420px;
-                            margin: 2rem auto;
-                            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-                        }
-                        .setup-card h2 {
-                            margin-bottom: 1rem;
-                        }
-                        .setup-card label {
-                            display: block;
-                            margin-bottom: 1rem;
-                        }
-                        .setup-card input[type="number"],
-                        .setup-card input[type="tel"],
-                        .setup-card input[type="text"],
-                        .setup-card select {
-                            width: 93%;
-                            font-size: 1rem;
-                            padding: 0.5rem 0.75rem;
-                            border-radius: 8px;
-                            border: none;
-                            background: #222;
-                            color: #fff;
-                        }
-                        .name-input {
-                            margin-bottom: 0.75rem;
-                        }
-                        .setup-card button {
-                            display: block;
-                            width: 100%;
-                            font-size: 1.1rem;
-                            padding: 0.75rem;
-                            border-radius: 8px;
-                            background: #333;
-                            color: #fff;
-                            border: none;
-                            margin-top: 1.5rem;
-                        }
-                        .winner {
-                            background: #224422;
-                        }
-                        .edit-btn {
-                            cursor: pointer;
-                            color: #0af;
-                            margin-left: 5px;
-                        }
-                        /*.scroll-container {overflow-x: auto;}*/
-                        .centered {
-                            text-align: center;
-                            margin-top: 2rem;
-                        }
-                        .active-cell {
-                            background-color: #333 !important;
-                        }
-                        #confirmDialog {
-                            display: none;
-                            position: fixed;
-                            top: 0;
-                            left: 0;
-                            width: 100%;
-                            height: 100%;
-                            background: rgba(0, 0, 0, 0.8);
-                            justify-content: center;
-                            align-items: center;
-                            z-index: 999;
-                        }
-                        #confirmBox {
-                            background: #222;
-                            padding: 2rem;
-                            border-radius: 10px;
-                            text-align: center;
-                        }
-                        #confirmBox button {
-                            margin: 1rem;
-                        }
-                        /* Для ЗАРУБА 🔥 (300) */
-                        .setup-card.zaruba-mode .mode-option.selected {
-                            border-color: #c41a16;
-                        }
-                        .setup-card.zaruba-mode input[type="tel"] {
-                            color: #c41a16;
-                        }
-                        .setup-card.zaruba-mode input[type="text"] {
-                            color: #c41a16;
-                        }
-                        .setup-card.zaruba-mode .name-input::placeholder {
-                            color: #c41a16;
-                        }
-
-                        /* Для КЛАСИКА 🧊 (500) */
-                        .setup-card.classic-mode .mode-option.selected {
-                            border-color: #0af;
-                        }
-                        .setup-card.classic-mode input[type="tel"] {
-                            color: #0af;
-                        }
-                        .setup-card.classic-mode input[type="text"] {
-                            color: #0af;
-                        }
-                        .setup-card.classic-mode .name-input::placeholder {
-                            color: #0af;
-                        }
-                        /* стиль тексту при першому запуску і пустій таблиці */
-                        .empty-message {
-                            padding: 1rem;
-                            text-align: center;
-                            font-size: 1.2rem;
-                            color: #ccc;
-                        }
-                        .footer-buttons {
-                            position: fixed;
-                            bottom: 0;
-                            left: 0;
-                            width: 100%;
-                            padding: 0.5rem;
-                            display: flex;
-                            justify-content: center;
-                            gap: 0.5rem;
-                            z-index: 999;
-                        }
-
-                        .footer-buttons button {
-                            max-width: 150px;
-                            padding: 0.5rem 1rem;
-                            font-size: 0.9rem;
-                        }
-                        /* вогник */
-                        .fire-mode {
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            gap: 10px;
-                        }
-
-                        .fire-mode img {
-                            width: 40px;
-                            height: 40px;
-                        }
-                       /* НЕОН */
-                   #title {
-              color: #fff;
-              text-shadow:
-                0 0 7px #fff,
-                0 0 10px #fff,
-                0 0 21px #fff,
-                0 0 42px #f09,
-                0 0 82px #f09,
-                0 0 92px #f09,
-                0 0 102px #f09,
-                0 0 151px #f09;
-              animation: pulsate 0.11s ease-in-out infinite alternate;
+            :root {
+                color-scheme: dark;
+            }
+            body {
+                margin: 0;
+                font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+                background: #111;
+                color: #fff;
+                padding: 1rem;
+            }
+            h1,
+            h2 {
+                text-align: center;
+            }
+            input {
+                text-align: center;
+                width: 50px;
+                font-size: 1rem;
+                padding: 0.5rem;
+                border-radius: 8px;
+                border: none;
+            }
+            .name-input::placeholder {
+                color: #fff;
+            }
+            select,
+            button {
+                font-size: 1rem;
+                padding: 0.5rem;
+                border-radius: 8px;
+                border: none;
+            }
+            button {
+                background: #333;
+                color: white;
+            }
+            #startBtn {
+                background: linear-gradient(to bottom, #4caf50, #388e3c);
+                color: #fff;
+                border: none;
+                padding: 12px 24px;
+                font-size: 18px;
+                border-radius: 12px;
+                cursor: pointer;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+                transition: all 0.3s ease;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            }
+            #startBtn:hover {
+                background: linear-gradient(to bottom, #66bb6a, #43a047);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+                transform: translateY(-2px);
+            }
+            #startBtn:active {
+                background: linear-gradient(to bottom, #388e3c, #2e7d32);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+                transform: translateY(1px);
+            }
+            #mode-options {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .mode-option {
+                border: 2px solid #333;
+                border-radius: 10px;
+                padding: 1rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                background: #1a1a1a;
+            }
+            .mode-option:hover {
+                background: #2a2a2a;
+            }
+            .mode-option.selected {
+                border-color: #0af;
+                background: #0a0a0a;
+            }
+            .player-setup {
+                margin: 1rem 0;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 1rem;
+                table-layout: fixed;
+            }
+            th,
+            td {
+                border: 1px solid #333;
+                padding: 0.5rem;
+                text-align: center;
+                width: 1%;
+            }
+            .setup-card {
+                background: #1a1a1a;
+                border-radius: 12px;
+                padding: 2rem;
+                padding-top: 8px;
+                max-width: 420px;
+                margin: 2rem auto;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            }
+            .setup-card h2 {
+                margin-bottom: 1rem;
+            }
+            .setup-card label {
+                display: block;
+                margin-bottom: 1rem;
+            }
+            .setup-card input[type="number"],
+            .setup-card input[type="tel"],
+            .setup-card input[type="text"],
+            .setup-card select {
+                width: 93%;
+                font-size: 1rem;
+                padding: 0.5rem 0.75rem;
+                border-radius: 8px;
+                border: none;
+                background: #222;
+                color: #fff;
+            }
+            .name-input {
+                margin-bottom: 0.75rem;
+            }
+            .setup-card button {
+                display: block;
+                width: 100%;
+                font-size: 1.1rem;
+                padding: 0.75rem;
+                border-radius: 8px;
+                background: #333;
+                color: #fff;
+                border: none;
+                margin-top: 1.5rem;
+            }
+            .winner {
+                background: #224422;
+            }
+            .edit-btn {
+                cursor: pointer;
+                color: #0af;
+                margin-left: 5px;
+            }
+            /*.scroll-container {overflow-x: auto;}*/
+            .centered {
+                text-align: center;
+                margin-top: 2rem;
+            }
+            .active-cell {
+                background-color: #333 !important;
+            }
+            #confirmDialog {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                justify-content: center;
+                align-items: center;
+                z-index: 999;
+            }
+            #confirmBox {
+                background: #222;
+                padding: 2rem;
+                border-radius: 10px;
+                text-align: center;
+            }
+            #confirmBox button {
+                margin: 1rem;
+            }
+            /* Для ЗАРУБА 🔥 (300) */
+            .setup-card.zaruba-mode .mode-option.selected {
+                border-color: #c41a16;
+            }
+            .setup-card.zaruba-mode input[type="tel"] {
+                color: #c41a16;
+            }
+            .setup-card.zaruba-mode input[type="text"] {
+                color: #c41a16;
+            }
+            .setup-card.zaruba-mode .name-input::placeholder {
+                color: #c41a16;
             }
 
-            @keyframes pulsate {
-              100% {
-                text-shadow:
-                  0 0 4px #fff,
-                  0 0 11px #fff,
-                  0 0 19px #fff,
-                  0 0 40px #f09,
-                  0 0 80px #f09,
-                  0 0 90px #f09,
-                  0 0 100px #f09,
-                  0 0 150px #f09;
-              }
+            /* Для КЛАСИКА 🧊 (500) */
+            .setup-card.classic-mode .mode-option.selected {
+                border-color: #0af;
+            }
+            .setup-card.classic-mode input[type="tel"] {
+                color: #0af;
+            }
+            .setup-card.classic-mode input[type="text"] {
+                color: #0af;
+            }
+            .setup-card.classic-mode .name-input::placeholder {
+                color: #0af;
+            }
+            /* стиль тексту при першому запуску і пустій таблиці */
+            .empty-message {
+                padding: 1rem;
+                text-align: center;
+                font-size: 1.2rem;
+                color: #ccc;
+            }
+            .footer-buttons {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                padding: 0.5rem;
+                display: flex;
+                justify-content: center;
+                gap: 0.5rem;
+                z-index: 999;
+            }
 
-              0% {
-                text-shadow:
-                  0 0 4px #fff,
-                  0 0 10px #fff,
-                  0 0 18px #fff,
-                  0 0 38px #f09,
-                  0 0 73px #f09,
-                  0 0 80px #f09,
-                  0 0 94px #f09,
-                  0 0 140px #f09;
-              }
+            .footer-buttons button {
+                max-width: 150px;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            /* вогник */
+            .fire-mode {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .fire-mode img {
+                width: 40px;
+                height: 40px;
+            }
+/* НЕОН */
+       #title {
+  color: #fff;
+  text-shadow:
+    0 0 7px #fff,
+    0 0 10px #fff,
+    0 0 21px #fff,
+    0 0 42px #bc13fe,
+    0 0 82px #bc13fe,
+    0 0 92px #bc13fe,
+    0 0 102px #bc13fe,
+    0 0 151px #bc13fe;
+  
+animation: pulsate 1.5s infinite alternate;
+}
+
+@keyframes pulsate {
+  100% {
+    text-shadow:
+      0 0 4px #fff,
+      0 0 11px #fff,
+      0 0 19px #fff,
+      0 0 40px #bc13fe,
+      0 0 80px #bc13fe,
+      0 0 90px #bc13fe,
+      0 0 100px #bc13fe,
+      0 0 150px #bc13fe;
+  }
+
+  0% {
+    text-shadow:
+    0 0 2px #fff,
+    0 0 4px #fff,
+    0 0 6px #fff,
+    0 0 10px #bc13fe,
+    0 0 45px #bc13fe,
+    0 0 55px #bc13fe,
+    0 0 70px #bc13fe,
+    0 0 80px #bc13fe;
+  }
         </style>
     </head>
-    <body>
-        <h1 id="title">UNO</h1>
-        <!--   <p style="text-align: center; font-size: 0.9rem;">Даблтап по імені — обрати стартового гравця</p>
+  <body>
+    <h1 id="title">UNO</h1>
+    <!--   <p style="text-align: center; font-size: 0.9rem;">Даблтап по імені — обрати стартового гравця</p>
          -->
-        <div id="setup" class="setup-card zaruba-mode">
-            <h2>Налаштування гри ⚙️</h2>
+    <div id="setup" class="setup-card zaruba-mode">
+        <h2>Налаштування гри ⚙️</h2>
 
-            <!-- 1. Вибір режиму -->
-            <div class="section">
-                <h3>1. Оберіть режим підрахунку очків</h3>
-                <div id="mode-options">
-                    <div class="mode-option selected" data-value="300" onclick="selectMode(this)">
-                        <strong>ЗАРУБА 🔥</strong>
-                        <p>До 300 очок. Кожен отримує очки за свої карти. Переможець - 0. Програє той, хто першим набере 300+</p>
-                    </div>
-                    <div class="mode-option" data-value="500" onclick="selectMode(this)">
-                        <strong>КЛАСИКА 🧊</strong>
-                        <p>До 500 очок. Переможець раунду отримує суму очків за карти суперників. Виграє той, хто першим набере 500+</p>
-                    </div>
+        <!-- 1. Вибір режиму -->
+        <div class="section">
+            <h3>1. Оберіть режим підрахунку очків</h3>
+            <div id="mode-options">
+                <div class="mode-option selected" data-value="300" onclick="selectMode(this)">
+                    <strong>ЗАРУБА 🔥</strong>
+                    <p>До 300 очок. Кожен отримує очки за свої карти. Переможець - 0. Програє той, хто першим набере 300+</p>
                 </div>
-                <input type="hidden" id="mode" value="300" />
-            </div>
-
-            <label>
-                <h3>2. Оберіть кількість гравців (2–10)</h3>
-                <input type="tel" inputmode="numeric" id="playerCount" min="2" max="10" value="4" />
-            </label>
-
-            <label>
-                <h3>3. Імена гравців ↩️</h3>
-                <div id="names"></div>
-            </label>
-
-            <button id="startBtn" onclick="startGame()">Почати гру</button>
-        </div>
-
-        <div id="game" style="display: none;">
-            <h2>...</h2>
-            <div class="scroll-container">
-                <table id="scoreTable"></table>
-            </div>
-            <div id="result"></div>
-            <div id="emptyTableMessage" class="empty-message">
-                ‼️Введіть очки гравців за перший раунд‼️<br />
-                Для переможця поле залишити пустим.<br />
-                ↙️ ↙️ ↙️
-            </div>
-
-            <form id="roundForm" onsubmit="addRound(event)">
-                <div id="roundInputs"></div>
-                <button type="submit">Додати раунд</button>
-            </form>
-
-            <div class="footer-buttons">
-                <button onclick="confirmRestart()">🔄 Нова гра з тими ж гравцями</button>
-                <button onclick="confirmFullRestart()">❌ Нова гра (скинути все)</button>
-            </div>
-
-            <div id="confirmDialog">
-                <div id="confirmBox">
-                    <p>Ви впевнені, що хочете почати нову гру?</p>
-                    <button onclick="doRestart()">ТАК</button>
-                    <button onclick="cancelRestart()">НІ</button>
+                <div class="mode-option" data-value="500" onclick="selectMode(this)">
+                    <strong>КЛАСИКА 🧊</strong>
+                    <p>До 500 очок. Переможець раунду отримує суму очків за карти суперників. Виграє той, хто першим набере 500+</p>
                 </div>
             </div>
+            <input type="hidden" id="mode" value="300" />
         </div>
 
-        <script>
+        <label>
+            <h3>2. Оберіть кількість гравців (2–10)</h3>
+            <input type="tel" inputmode="numeric" id="playerCount" min="2" max="10" value="4" />
+        </label>
+
+        <label>
+            <h3>3. Імена гравців ↩️</h3>
+            <div id="names"></div>
+        </label>
+
+        <button id="startBtn" onclick="startGame()">Почати гру</button>
+    </div>
+
+    <div id="game" style="display: none;">
+        <h2>...</h2>
+        <div class="scroll-container">
+            <table id="scoreTable"></table>
+        </div>
+        <div id="result"></div>
+        <div id="emptyTableMessage" class="empty-message">
+            ‼️Введіть очки гравців за перший раунд‼️<br />
+            Для переможця поле залишити пустим.<br />
+            ↙️ ↙️ ↙️
+        </div>
+
+        <form id="roundForm" onsubmit="addRound(event)">
+            <div id="roundInputs"></div>
+            <button type="submit">Додати раунд</button>
+        </form>
+
+        <div class="footer-buttons">
+            <button onclick="confirmRestart()">🔄 Нова гра з тими ж гравцями</button>
+            <button onclick="confirmFullRestart()">❌ Нова гра (скинути все)</button>
+        </div>
+
+        <div id="confirmDialog">
+            <div id="confirmBox">
+                <p>Ви впевнені, що хочете почати нову гру?</p>
+                <button onclick="doRestart()">ТАК</button>
+                <button onclick="cancelRestart()">НІ</button>
+            </div>
+        </div>
+    </div>
+</body>
+  
+   <script>
             let players = [];
             let scores = [];
             let mode = "300";
@@ -385,7 +387,6 @@
             }
 
             function startGame() {
-                window.scrollTo(0, 0);
                 const count = +document.getElementById("playerCount").value;
                 players = [];
                 for (let i = 0; i < count; i++) {
@@ -686,7 +687,7 @@
                 // оновити клас на setup-card для кольорових стилів
                 const setupCard = document.querySelector(".setup-card");
                 setupCard.classList.remove("zaruba-mode", "classic-mode");
-
+0
                 if (el.getAttribute("data-value") === "300") {
                     setupCard.classList.add("zaruba-mode");
                 } else if (el.getAttribute("data-value") === "500") {
@@ -701,5 +702,6 @@
     `;
             }
         </script>
+  
     </body>
 </html>
