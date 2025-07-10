@@ -229,10 +229,22 @@
                 padding: 0.5rem 1rem;
                 font-size: 0.9rem;
             }
+            /* вогник */
+            .fire-mode {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .fire-mode img {
+                width: 40px;
+                height: 40px;
+            }
         </style>
     </head>
     <body>
-        <h1>UNO Калькулятор</h1>
+        <h1 id="title">UNO Калькулятор</h1>
         <!--   <p style="text-align: center; font-size: 0.9rem;">Даблтап по імені — обрати стартового гравця</p>
          -->
         <div id="setup" class="setup-card zaruba-mode">
@@ -348,6 +360,10 @@
                 renderRoundInputs();
                 renderTable();
                 saveState();
+
+                if (mode === "300") {
+                    addFireToTitle();
+                }
             }
 
             function renderNameInputs() {
@@ -612,7 +628,9 @@
                     localStorage.removeItem("uno_state");
                     document.getElementById("setup").style.display = "block";
                     document.getElementById("game").style.display = "none";
-                    document.getElementById("result").innerHTML = ""; // ← Додати ось цей рядок
+                    document.getElementById("result").innerHTML = "";
+                    document.getElementById("title").classList.remove("fire-mode");
+                    document.getElementById("title").innerHTML = "UNO Калькулятор";
                     renderNameInputs();
                 }
             }
@@ -634,6 +652,15 @@
                 } else if (el.getAttribute("data-value") === "500") {
                     setupCard.classList.add("classic-mode");
                 }
+            }
+            function addFireToTitle() {
+                const title = document.getElementById("title");
+                title.classList.add("fire-mode");
+                title.innerHTML = `
+        <img src="fire.gif" alt="fire">
+        UNO Калькулятор
+        <img src="fire.gif" alt="fire">
+    `;
             }
         </script>
     </body>
