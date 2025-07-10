@@ -233,8 +233,8 @@
     </head>
     <body>
         <h1>UNO Калькулятор</h1>
-        <p style="text-align: center; font-size: 0.9rem;">Даблтап по імені — обрати стартового гравця</p>
-
+        <!--   <p style="text-align: center; font-size: 0.9rem;">Даблтап по імені — обрати стартового гравця</p>
+         -->
         <div id="setup" class="setup-card zaruba-mode">
             <h2>Налаштування гри ⚙️</h2>
 
@@ -470,10 +470,18 @@
             function renderTable() {
                 const table = document.getElementById("scoreTable");
                 const message = document.getElementById("emptyTableMessage");
+                const tableContainer = document.querySelector(".scroll-container");
+
                 table.innerHTML = "";
 
-                // показати/сховати повідомлення про порожню таблицю
-                message.style.display = scores.length === 0 ? "block" : "none";
+                if (scores.length === 0) {
+                    message.style.display = "block";
+                    tableContainer.style.display = "none";
+                    return;
+                } else {
+                    message.style.display = "none";
+                    tableContainer.style.display = "block";
+                }
 
                 const starsPerPlayer = Array(players.length).fill(0);
                 const header = document.createElement("tr");
@@ -510,7 +518,6 @@
                     table.appendChild(tr);
                 });
 
-                // сума
                 const totalRow = document.createElement("tr");
                 totalRow.innerHTML =
                     `<td><strong>Сума</strong></td>` +
@@ -605,9 +612,11 @@
                     localStorage.removeItem("uno_state");
                     document.getElementById("setup").style.display = "block";
                     document.getElementById("game").style.display = "none";
+                    document.getElementById("result").innerHTML = ""; // ← Додати ось цей рядок
                     renderNameInputs();
                 }
             }
+
             function selectMode(el) {
                 // зняти попередній вибір
                 document.querySelectorAll(".mode-option").forEach((option) => option.classList.remove("selected"));
