@@ -216,7 +216,7 @@
                 color: #ccc;
             }
             .footer-buttons {
-/*                 position: fixed; */
+                position: fixed;
                 bottom: 0;
                 left: 0;
                 width: 100%;
@@ -224,7 +224,7 @@
                 display: flex;
                 justify-content: center;
                 gap: 0.5rem;
-/*                 z-index: 999; */
+                z-index: 999;
             }
 
             .footer-buttons button {
@@ -323,7 +323,6 @@ animation: pulsate 1.5s infinite alternate;
     </div>
 
     <div id="game" style="display: none;">
-        <h2>...</h2>
         <div class="scroll-container">
             <table id="scoreTable"></table>
         </div>
@@ -459,8 +458,8 @@ animation: pulsate 1.5s infinite alternate;
                 });
                 table.appendChild(inputRow);
 
-                //container.appendChild(document.createTextNode("..."));
-                //container.appendChild(document.createElement("br"));
+                // container.appendChild(document.createTextNode("..."));
+                // container.appendChild(document.createElement("br"));
                 container.appendChild(table);
             }
 
@@ -690,7 +689,7 @@ animation: pulsate 1.5s infinite alternate;
                 // оновити клас на setup-card для кольорових стилів
                 const setupCard = document.querySelector(".setup-card");
                 setupCard.classList.remove("zaruba-mode", "classic-mode");
-0
+
                 if (el.getAttribute("data-value") === "300") {
                     setupCard.classList.add("zaruba-mode");
                 } else if (el.getAttribute("data-value") === "500") {
@@ -700,9 +699,7 @@ animation: pulsate 1.5s infinite alternate;
             function addFireToTitle() {
                 const title = document.getElementById("title");
                 title.classList.add("fire-mode");
-                title.innerHTML = `
-        <img src="fire.gif" alt="fire">  UNO  <img src="fire.gif" alt="fire">
-    `;
+                title.innerHTML = `<img src="fire.gif" alt="fire">  UNO  <img src="fire.gif" alt="fire">`;
             }
         </script>
   
