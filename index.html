@@ -848,36 +848,33 @@ const funnyMessages = [
 ];
 
 
-let currentStation = 2;
+let currentStation = 0;
 const audioPlayer = document.getElementById("audioPlayer");
 const playPauseBtn = document.getElementById("playPauseBtn");
 const nextStationBtn = document.getElementById("nextStationBtn");
 const stationTooltip = document.getElementById("stationTooltip");
 let hideTimeout;
 
-const stations = [{
+const stations = [
+    {
         url: "http://stream.radioskovoroda.com:8000/radioskovoroda",
-        name: "Radio Skovoroda"
+        name: "Радіо Сковорода"
+    },
+    {
+        url: "https://tavr.radio.tvstitch.com/HitFM_Ukr_HD",
+        name: "HitFM Ukr Hits"
     },
     {
         url: "http://stream.radioskovoroda.com:8060/skovoroda_music",
-        name: "Skovoroda Music"
+        name: "Сковорода Music"
     },
     {
         url: "https://online.kissfm.ua/KissFM_HD",
-        name: "KissFM Efir"
+        name: "KissFM Ефір"
     },
     {
         url: "https://online.kissfm.ua/KissFM_Ukr_HD",
         name: "KissFM Ukr"
-    },
-    {
-        url: "https://768260.radio.tvstitch.com/radio.mp3?station=kiss_fm_deep",
-        name: "KissFM Deep"
-    },
-    {
-        url: "https://768260.radio.tvstitch.com/radio.mp3?station=kiss_fm_digital",
-        name: "KissFM Digital"
     },
     {
         url: "https://tavr.radio.tvstitch.com/HitFM_Best_HD",
@@ -885,15 +882,11 @@ const stations = [{
     },
     {
         url: "https://online.hitfm.ua/HitFM_HD",
-        name: "HitFM Efir"
+        name: "HitFM Ефір"
     },
     {
         url: "https://tavr.radio.tvstitch.com/HitFM_Top_HD",
         name: "HitFM Top"
-    },
-    {
-        url: "https://tavr.radio.tvstitch.com/HitFM_Ukr_HD",
-        name: "HitFM Ukr Hits"
     }
 ];
 
