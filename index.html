@@ -1,295 +1,339 @@
 <!DOCTYPE html>
 <html lang="uk">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>🗒️Блокнот для UNO</title>
-        <style>
-            :root {
-                color-scheme: dark;
-            }
-            body {
-                margin: 0;
-                font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-                background: #111;
-                color: #fff;
-                padding: 1rem;
-                padding-bottom: 80px;
-            }
-            h1,
-            h2 {
-                text-align: center;
-            }
-            input {
-                text-align: center;
-                width: 50px;
-                font-size: 1rem;
-                padding: 0.5rem;
-                border-radius: 8px;
-                border: none;
-            }
-            .name-input::placeholder {
-                color: #fff;
-            }
-            select,
-            button {
-                font-size: 1rem;
-                padding: 0.5rem;
-                border-radius: 8px;
-                border: none;
-                margin-top: 0.5rem;
-            }
-            button {
-                background: #333;
-                color: white;
-            }
-            #startBtn {
-                background: linear-gradient(to bottom, #4caf50, #388e3c);
-                color: #fff;
-                border: none;
-                padding: 12px 24px;
-                font-size: 18px;
-                border-radius: 12px;
-                cursor: pointer;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-                transition: all 0.3s ease;
-                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-            }
-            #startBtn:hover {
-                background: linear-gradient(to bottom, #66bb6a, #43a047);
-                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-                transform: translateY(-2px);
-            }
-            #startBtn:active {
-                background: linear-gradient(to bottom, #388e3c, #2e7d32);
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-                transform: translateY(1px);
-            }
-            #mode-options {
-                display: flex;
-                flex-direction: column;
-                gap: 1rem;
-            }
-            .mode-option {
-                border: 2px solid #333;
-                border-radius: 10px;
-                padding: 1rem;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                background: #1a1a1a;
-            }
-            .mode-option:hover {
-                background: #2a2a2a;
-            }
-            .mode-option.selected {
-                border-color: #0af;
-                background: #0a0a0a;
-            }
-            .player-setup {
-                margin: 1rem 0;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 1rem;
-                table-layout: fixed;
-            }
-            th,
-            td {
-                border: 1px solid #333;
-                padding: 0.5rem;
-                text-align: center;
-                width: 1%;
-            }
-            .setup-card {
-                background: #1a1a1a;
-                border-radius: 12px;
-                padding: 2rem;
-                padding-top: 8px;
-                max-width: 420px;
-                margin: 2rem auto;
-                box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            }
-            .setup-card h2 {
-                margin-top: 0.5rem;
-                margin-bottom: 1rem;
-            }
-            .setup-card label {
-                display: block;
-                margin-bottom: 1rem;
-            }
-            .setup-card input[type="number"],
-            .setup-card input[type="tel"],
-            .setup-card input[type="text"],
-            .setup-card select {
-                width: 93%;
-                font-size: 1rem;
-                padding: 0.5rem 0.75rem;
-                border-radius: 8px;
-                border: none;
-                background: #222;
-                color: #fff;
-            }
-            .name-input {
-                margin-bottom: 0.75rem;
-            }
-            .setup-card button {
-                display: block;
-                width: 100%;
-                font-size: 1.1rem;
-                padding: 0.75rem;
-                border-radius: 8px;
-                background: #333;
-                color: #fff;
-                border: none;
-                margin-top: 0.5rem;
-            }
-            .winner {
-                background: #224422;
-            }
-            .edit-btn {
-                cursor: pointer;
-                color: #0af;
-                margin-left: 5px;
-            }
-            /*.scroll-container {overflow-x: auto;}*/
-            .centered {
-                text-align: center;
-                margin-top: 2rem;
-            }
-            .active-cell {
-                background-color: #333 !important;
-            }
-            #confirmDialog {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.8);
-                justify-content: center;
-                align-items: center;
-                z-index: 999;
-            }
-            #confirmBox {
-                background: #222;
-                padding: 2rem;
-                border-radius: 10px;
-                text-align: center;
-            }
-            #confirmBox button {
-                margin: 1rem;
-            }
-            /* Для ЗАРУБА 🔥 (300) */
-            .setup-card.zaruba-mode .mode-option.selected {
-                border-color: #c41a16;
-            }
-            .setup-card.zaruba-mode input[type="tel"] {
-                color: #c41a16;
-            }
-            .setup-card.zaruba-mode input[type="text"] {
-                color: #c41a16;
-            }
-            .setup-card.zaruba-mode .name-input::placeholder {
-                color: #c41a16;
-            }
-/*             .round-input::placeholder {
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🗒️Блокнот для UNO</title>
+    <style>
+ :root {
+     color-scheme: dark;
+ }
+
+ body {
+     margin: 0;
+     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+     background: #111;
+     color: #fff;
+     padding: 1rem;
+     padding-bottom: 80px;
+ }
+
+ h1,
+ h2 {
+     text-align: center;
+ }
+
+ input {
+     text-align: center;
+     width: 50px;
+     font-size: 1rem;
+     padding: 0.5rem;
+     border-radius: 8px;
+     border: none;
+ }
+
+ .name-input::placeholder {
+     color: #fff;
+ }
+
+ select,
+ button {
+     font-size: 1rem;
+     padding: 0.5rem;
+     border-radius: 8px;
+     border: none;
+     margin-top: 0.5rem;
+ }
+
+ button {
+     background: #333;
+     color: white;
+ }
+
+ #startBtn {
+     background: linear-gradient(to bottom, #4caf50, #388e3c);
+     color: #fff;
+     border: none;
+     padding: 12px 24px;
+     font-size: 18px;
+     border-radius: 12px;
+     cursor: pointer;
+     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+     transition: all 0.3s ease;
+     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+ }
+
+ #startBtn:hover {
+     background: linear-gradient(to bottom, #66bb6a, #43a047);
+     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+     transform: translateY(-2px);
+ }
+
+ #startBtn:active {
+     background: linear-gradient(to bottom, #388e3c, #2e7d32);
+     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+     transform: translateY(1px);
+ }
+
+ #mode-options {
+     display: flex;
+     flex-direction: column;
+     gap: 1rem;
+ }
+
+ .mode-option {
+     border: 2px solid #333;
+     border-radius: 10px;
+     padding: 1rem;
+     cursor: pointer;
+     transition: all 0.2s ease;
+     background: #1a1a1a;
+ }
+
+ .mode-option:hover {
+     background: #2a2a2a;
+ }
+
+ .mode-option.selected {
+     border-color: #0af;
+     background: #0a0a0a;
+ }
+
+ .player-setup {
+     margin: 1rem 0;
+ }
+
+ table {
+     width: 100%;
+     border-collapse: collapse;
+     margin-top: 1rem;
+     table-layout: fixed;
+ }
+
+ th,
+ td {
+     border: 1px solid #333;
+     padding: 0.5rem;
+     text-align: center;
+     width: 1%;
+ }
+
+ .setup-card {
+     background: #1a1a1a;
+     border-radius: 12px;
+     padding: 2rem;
+     padding-top: 8px;
+     max-width: 420px;
+     margin: 2rem auto;
+     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+ }
+
+ .setup-card h2 {
+     margin-top: 0.5rem;
+     margin-bottom: 1rem;
+ }
+
+ .setup-card label {
+     display: block;
+     margin-bottom: 1rem;
+ }
+
+ .setup-card input[type="number"],
+ .setup-card input[type="tel"],
+ .setup-card input[type="text"],
+ .setup-card select {
+     width: 93%;
+     font-size: 1rem;
+     padding: 0.5rem 0.75rem;
+     border-radius: 8px;
+     border: none;
+     background: #222;
+     color: #fff;
+ }
+
+ .name-input {
+     margin-bottom: 0.75rem;
+ }
+
+ .setup-card button {
+     display: block;
+     width: 100%;
+     font-size: 1.1rem;
+     padding: 0.75rem;
+     border-radius: 8px;
+     background: #333;
+     color: #fff;
+     border: none;
+     margin-top: 0.5rem;
+ }
+
+ .winner {
+     background: #224422;
+ }
+
+ .edit-btn {
+     cursor: pointer;
+     color: #0af;
+     margin-left: 5px;
+ }
+
+ /*.scroll-container {overflow-x: auto;}*/
+ .centered {
+     text-align: center;
+     margin-top: 2rem;
+ }
+
+ .active-cell {
+     background-color: #333 !important;
+ }
+
+ #confirmDialog {
+     display: none;
+     position: fixed;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background: rgba(0, 0, 0, 0.8);
+     justify-content: center;
+     align-items: center;
+     z-index: 999;
+ }
+
+ #confirmBox {
+     background: #222;
+     padding: 2rem;
+     border-radius: 10px;
+     text-align: center;
+ }
+
+ #confirmBox button {
+     margin: 1rem;
+ }
+
+ /* Для ЗАРУБА 🔥 (300) */
+ .setup-card.zaruba-mode .mode-option.selected {
+     border-color: #c41a16;
+ }
+
+ .setup-card.zaruba-mode input[type="tel"] {
+     color: #c41a16;
+ }
+
+ .setup-card.zaruba-mode input[type="text"] {
+     color: #c41a16;
+ }
+
+ .setup-card.zaruba-mode .name-input::placeholder {
+     color: #c41a16;
+ }
+
+ /*             .round-input::placeholder {
                 color: yellow; 
             } */
 
-            /* Для КЛАСИКА 🧊 (500) */
-            .setup-card.classic-mode .mode-option.selected {
-                border-color: #0af;
-            }
-            .setup-card.classic-mode input[type="tel"] {
-                color: #0af;
-            }
-            .setup-card.classic-mode input[type="text"] {
-                color: #0af;
-            }
-            .setup-card.classic-mode .name-input::placeholder {
-                color: #0af;
-            }
-            /* стиль тексту при першому запуску і пустій таблиці */
-            .empty-message {
-                padding: 1rem;
-                text-align: center;
-                font-size: 1.2rem;
-                color: #ccc;
-            }
-            .footer-buttons {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                padding: 0.5rem;
-                display: flex;
-                justify-content: center;
-                gap: 0.5rem;
-                z-index: 999;
-            }
+ /* Для КЛАСИКА 🧊 (500) */
+ .setup-card.classic-mode .mode-option.selected {
+     border-color: #0af;
+ }
 
-            .footer-buttons button {
-                max-width: 150px;
-                padding: 0.5rem 1rem;
-                font-size: 0.9rem;
-            }
-            /* вогник */
-            .fire-mode {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 10px;
-            }
+ .setup-card.classic-mode input[type="tel"] {
+     color: #0af;
+ }
 
-            .fire-mode img {
-                width: 40px;
-                height: 40px;
-            }
-/* НЕОН */
-       #title {
-  color: #fff;
-  text-shadow:
-    0 0 7px #fff,
-    0 0 10px #fff,
-    0 0 21px #fff,
-    0 0 42px #bc13fe,
-    0 0 82px #bc13fe,
-    0 0 92px #bc13fe,
-    0 0 102px #bc13fe,
-    0 0 151px #bc13fe;
-  
-animation: pulsate 1.5s infinite alternate;
-}
+ .setup-card.classic-mode input[type="text"] {
+     color: #0af;
+ }
 
+ .setup-card.classic-mode .name-input::placeholder {
+     color: #0af;
+ }
+
+ /* стиль тексту при першому запуску і пустій таблиці */
+ .empty-message {
+     padding: 1rem;
+     text-align: center;
+     font-size: 1.2rem;
+     color: #ccc;
+ }
+
+ .footer-buttons {
+     position: fixed;
+     bottom: 0;
+     left: 0;
+     width: 100%;
+     padding: 0.5rem;
+     display: flex;
+     justify-content: center;
+     gap: 0.5rem;
+     z-index: 999;
+ }
+
+ .footer-buttons button {
+     max-width: 150px;
+     padding: 0.5rem 1rem;
+     font-size: 0.9rem;
+ }
+
+ /* вогник */
+ .fire-mode {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 10px;
+ }
+
+ .fire-mode img {
+     width: 40px;
+     height: 40px;
+ }
+
+ /* НЕОН */
+ #title {
+     color: #fff;
+     text-shadow:
+         0 0 7px #fff,
+         0 0 10px #fff,
+         0 0 21px #fff,
+         0 0 42px #bc13fe,
+         0 0 82px #bc13fe,
+         0 0 92px #bc13fe,
+         0 0 102px #bc13fe,
+         0 0 151px #bc13fe;
+
+     animation: pulsate 1.5s infinite alternate;
+ }
+        
 @keyframes pulsate {
-  100% {
-    text-shadow:
-      0 0 4px #fff,
-      0 0 11px #fff,
-      0 0 19px #fff,
-      0 0 40px #bc13fe,
-      0 0 80px #bc13fe,
-      0 0 90px #bc13fe,
-      0 0 100px #bc13fe,
-      0 0 150px #bc13fe;
-  }
+    100% {
+        text-shadow:
+            0 0 4px #fff,
+            0 0 11px #fff,
+            0 0 19px #fff,
+            0 0 40px #bc13fe,
+            0 0 80px #bc13fe,
+            0 0 90px #bc13fe,
+            0 0 100px #bc13fe,
+            0 0 150px #bc13fe;
+    }
 
-  0% {
-    text-shadow:
-    0 0 2px #fff,
-    0 0 4px #fff,
-    0 0 6px #fff,
-    0 0 10px #bc13fe,
-    0 0 45px #bc13fe,
-    0 0 55px #bc13fe,
-    0 0 70px #bc13fe,
-    0 0 80px #bc13fe;
-  }
-        </style>
-    </head>
-  <body>
+    0% {
+        text-shadow:
+            0 0 2px #fff,
+            0 0 4px #fff,
+            0 0 6px #fff,
+            0 0 10px #bc13fe,
+            0 0 45px #bc13fe,
+            0 0 55px #bc13fe,
+            0 0 70px #bc13fe,
+            0 0 80px #bc13fe;
+    }
+}
+    </style>
+</head>
+
+<body>
     <h1 id="title">UNO</h1>
     <!--   <p style="text-align: center; font-size: 0.9rem;">Даблтап по імені — обрати стартового гравця</p>
          -->
@@ -339,7 +383,7 @@ animation: pulsate 1.5s infinite alternate;
         <form id="roundForm" onsubmit="addRound(event)">
             <div id="roundInputs"></div>
             <button type="submit">Додати раунд</button>
-<!--             <button type="submit">✅💾Записати очки</button> -->
+            <!--             <button type="submit">✅💾Записати очки</button> -->
         </form>
 
         <div class="footer-buttons">
@@ -355,8 +399,9 @@ animation: pulsate 1.5s infinite alternate;
             </div>
         </div>
     </div>
-  
-   <script>
+
+    <script>
+
             let players = [];
             let scores = [];
             let mode = "300";
@@ -365,7 +410,12 @@ animation: pulsate 1.5s infinite alternate;
             let startPlayerIndex = null;
 
             function saveState() {
-                localStorage.setItem("uno_state", JSON.stringify({ players, scores, mode, startPlayerIndex }));
+                localStorage.setItem("uno_state", JSON.stringify({
+                    players,
+                    scores,
+                    mode,
+                    startPlayerIndex
+                }));
             }
 
             function selectMode(element) {
@@ -482,7 +532,7 @@ animation: pulsate 1.5s infinite alternate;
                 }
 
                 if (winnerIndexes.length !== 1) {
-                    alert("Має бути рівно один переможець (залишити порожнє поле або '-')");
+                    alert("У раунді переможець може бути лише один. Для переможця залишити поле пустим. Не 0");
                     return;
                 }
 
@@ -504,7 +554,11 @@ animation: pulsate 1.5s infinite alternate;
                     }
                 }
 
-                const roundObj = { scores: round, winner, rawInputs };
+                const roundObj = {
+                    scores: round,
+                    winner,
+                    rawInputs
+                };
 
                 if (editIndex !== null) {
                     scores[editIndex] = roundObj;
@@ -584,11 +638,11 @@ animation: pulsate 1.5s infinite alternate;
                 totalRow.innerHTML =
                     `<td><strong>Сума</strong></td>` +
                     players
-                        .map((_, i) => {
-                            const sum = scores.reduce((a, r) => a + r.scores[i], 0);
-                            return `<td><strong>${sum}</strong></td>`;
-                        })
-                        .join("");
+                    .map((_, i) => {
+                        const sum = scores.reduce((a, r) => a + r.scores[i], 0);
+                        return `<td><strong>${sum}</strong></td>`;
+                    })
+                    .join("");
                 table.appendChild(totalRow);
 
                 stars = starsPerPlayer;
@@ -608,33 +662,34 @@ animation: pulsate 1.5s infinite alternate;
                     return arr;
                 }, []);
             }
-       function checkWinner() {
-           const totals = players.map((_, i) => scores.reduce((a, r) => a + r.scores[i], 0));
-           const resultDiv = document.getElementById("result");
-           
-           let message = "";
-           
-           if (mode === "500") {
-               const winnerIndexes = totals.map((t, i) => (t >= 500 ? i : -1)).filter((i) => i !== -1);
-               if (winnerIndexes.length) {
-                   message = winnerIndexes.map((i) => `<h2>🏆 ${players[i]} переміг!</h2>`).join("");
-               }
-           } else {
-               const loserIndexes = totals.map((t, i) => (t >= 300 ? i : -1)).filter((i) => i !== -1);
-               if (loserIndexes.length) {
-                   message = loserIndexes.map((i) => {
-                       const randomMsg = funnyMessages[Math.floor(Math.random() * funnyMessages.length)]
-                           .replace(/{{player}}/g, players[i]);
-                       return `<h2 style="margin-bottom: 0;">💀 ${players[i]} програв!</h2>
+
+            function checkWinner() {
+                const totals = players.map((_, i) => scores.reduce((a, r) => a + r.scores[i], 0));
+                const resultDiv = document.getElementById("result");
+
+                let message = "";
+
+                if (mode === "500") {
+                    const winnerIndexes = totals.map((t, i) => (t >= 500 ? i : -1)).filter((i) => i !== -1);
+                    if (winnerIndexes.length) {
+                        message = winnerIndexes.map((i) => `<h2>🏆 ${players[i]} переміг!</h2>`).join("");
+                    }
+                } else {
+                    const loserIndexes = totals.map((t, i) => (t >= 300 ? i : -1)).filter((i) => i !== -1);
+                    if (loserIndexes.length) {
+                        message = loserIndexes.map((i) => {
+                            const randomMsg = funnyMessages[Math.floor(Math.random() * funnyMessages.length)]
+                                .replace(/{{player}}/g, players[i]);
+                            return `<h2 style="margin-bottom: 0;">💀 ${players[i]} програв!</h2>
                        <p style="margin-top: 4px; text-align: center;">${randomMsg}</p>`;
-                   }).join("");
-               }
-           }
-           
-           if (message) {
-               resultDiv.innerHTML = message;
-           }
-       }
+                        }).join("");
+                    }
+                }
+
+                if (message) {
+                    resultDiv.innerHTML = message;
+                }
+            }
 
             function editRound(index) {
                 const roundObj = scores[index];
@@ -708,37 +763,40 @@ animation: pulsate 1.5s infinite alternate;
                     setupCard.classList.add("classic-mode");
                 }
             }
+
             function addFireToTitle() {
                 const title = document.getElementById("title");
                 title.classList.add("fire-mode");
                 title.innerHTML = `<img src="fire.gif" alt="fire">  UNO  <img src="fire.gif" alt="fire">`;
             }
-       const funnyMessages = [
-            `Схоже, що сьогодні не {{player}} день 🎲`,
-            `Ну буває, {{player}}, наступного разу повезе! 😂`,
-            `Можна я за тебе зіграю? 😜`,
-            `UNO каже {{player}}: спробуй ще 🔥`,
-            `🐸 не врятувала {{player}}`,
-            `Діла ішли не те шо х..во, но і нізя сказать шо харашо`,
-            `UNO каже {{player}}: спробуй ще 🔥`,
-            `Схоже, {{player}} сьогодні залишив удачу вдома 😅`,
-            `{{player}}, UNO тебе зробило 👊`,
-            `Ну що, {{player}}, каву з поразкою будеш? ☕️😂`,
-            `В кого мінус мораль? Правильно, в {{player}} 🎲`,
-            `{{player}}, наступного разу візьми талісман 🍀`,
-            `UNO каже: {{player}}, спробуй ще 🔥`,
-            `{{player}}, ти офіційно головний спонсор чужих очок 🎁`,
-            `Легенди казали, що {{player}} колись вигравав... але це не точно 😆`,
-            `Рекорд по антирезультату! {{player}}, ти топчик 💀`,
-            `Так тримати, {{player}}! І наступного разу програєш стильно 🎉`,
-            `UNO: {{player}}, підпиши контракт лузера 📝`,
-            `Навіть картковий оракул передбачав твою поразку, {{player}} 🔮`,
-            `UNO кричить: Астанавітєсь! Але {{player}} продовжує набирати очки 📈`,
-            `Хтось викличе швидку для {{player}} — UNO вбиває 💥`,
-            `{{player}}, спойлер: ти все одно програв би 😏`,
-            `{{player}}, це була найкраща НАЙШІРША гра яку я бачив`,
-            `{{player}}, просто подякуй за останню чорну +4 карточку`
-       ];
-        </script>
-    </body>
+            const funnyMessages = [
+                `Схоже, що сьогодні не {{player}} день 🎲`,
+                `Ну буває, {{player}}, наступного разу повезе! 😂`,
+                `Можна я за тебе зіграю? 😜`,
+                `UNO каже {{player}}: спробуй ще 🔥`,
+                `🐸 не врятувала {{player}}`,
+                `Діла ішли не те шо х..во, но і нізя сказать шо харашо`,
+                `UNO каже {{player}}: спробуй ще 🔥`,
+                `Схоже, {{player}} сьогодні залишив удачу вдома 😅`,
+                `{{player}}, UNO тебе зробило 👊`,
+                `Ну що, {{player}}, каву з поразкою будеш? ☕️😂`,
+                `В кого мінус мораль? Правильно, в {{player}} 🎲`,
+                `{{player}}, наступного разу візьми талісман 🍀`,
+                `UNO каже: {{player}}, спробуй ще 🔥`,
+                `{{player}}, ти офіційно головний спонсор чужих очок 🎁`,
+                `Легенди казали, що {{player}} колись вигравав... але це не точно 😆`,
+                `Рекорд по антирезультату! {{player}}, ти топчик 💀`,
+                `Так тримати, {{player}}! І наступного разу програєш стильно 🎉`,
+                `UNO: {{player}}, підпиши контракт лузера 📝`,
+                `Навіть картковий оракул передбачав твою поразку, {{player}} 🔮`,
+                `UNO кричить: Астанавітєсь! Але {{player}} продовжує набирати очки 📈`,
+                `Хтось викличе швидку для {{player}} — UNO вбиває 💥`,
+                `{{player}}, спойлер: ти все одно програв би 😏`,
+                `{{player}}, це була найкраща НАЙШІРША гра яку я бачив`,
+                `{{player}}, просто подякуй за останню чорну +4 карточку`
+            ];
+
+    </script>
+</body>
+
 </html>
