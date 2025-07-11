@@ -330,19 +330,71 @@
             0 0 80px #bc13fe;
     }
 }
+      
+      .custom-tooltip {
+          position: fixed;
+          top: 14px;
+          left: 60px;
+          background: #333;
+          color: #fff;
+          padding: 6px 12px;
+          border-radius: 6px;
+          font-size: 0.9rem;
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.3s ease;
+          z-index: 1000;
+      }
+
+      #radioPlayer {
+          position: fixed;
+          top: 10px;
+          left: 10px;
+          z-index: 9999;
+          display: flex;
+          gap: 8px;
+          pointer-events: auto;
+      }
+
+      #radioPlayer button {
+          background: #222;
+          border: none;
+          border-radius: 6px;
+          color: #fff;
+          padding: 8px 10px;
+          font-size: 1.1rem;
+          cursor: pointer;
+          transition: background 0.2s;
+      }
+
+      #radioPlayer button:hover {
+          background: #333;
+      }
+      
+      
     </style>
 </head>
 
 <body>
-    <h1 id="title">UNO</h1>
-    <!--   <p style="text-align: center; font-size: 0.9rem;">Даблтап по імені — обрати стартового гравця</p>
-         -->
-    <div id="setup" class="setup-card zaruba-mode">
-        <h2>Налаштування гри ⚙️</h2>
 
-        <!-- 1. Вибір режиму -->
-        <div class="section">
-            <h3>1. Оберіть режим підрахунку очків</h3>
+<h1 id="title">UNO</h1>
+<!--   <p style="text-align: center; font-size: 0.9rem;">Даблтап по імені — обрати стартового гравця</p>
+         -->
+
+<div id="radioPlayer">
+    <button id="playPauseBtn">▶️</button>
+    <button id="nextStationBtn" class="tooltip-btn">⏭️</button>
+    <div id="stationTooltip" class="custom-tooltip"></div>
+</div>
+<audio id="audioPlayer"></audio>
+
+
+<div id="setup" class="setup-card zaruba-mode">
+    <h2>Налаштування гри ⚙️</h2>
+
+    <!-- 1. Вибір режиму -->
+    <div class="section">
+        <h3>1. Оберіть режим підрахунку очків</h3>
             <div id="mode-options">
                 <div class="mode-option selected" data-value="300" onclick="selectMode(this)">
                     <strong>ЗАРУБА 🔥</strong>
@@ -401,401 +453,495 @@
     </div>
 
     <script>
+      let players = [];
+let scores = [];
+let mode = "300";
+let stars = [];
+let editIndex = null;
+let startPlayerIndex = null;
 
-            let players = [];
-            let scores = [];
-            let mode = "300";
-            let stars = [];
-            let editIndex = null;
-            let startPlayerIndex = null;
+function saveState() {
+    localStorage.setItem("uno_state", JSON.stringify({
+        players,
+        scores,
+        mode,
+        startPlayerIndex
+    }));
+}
 
-            function saveState() {
-                localStorage.setItem("uno_state", JSON.stringify({
-                    players,
-                    scores,
-                    mode,
-                    startPlayerIndex
-                }));
+function selectMode(element) {
+    document.querySelectorAll(".mode-option").forEach((el) => el.classList.remove("selected"));
+    element.classList.add("selected");
+    document.getElementById("mode").value = element.dataset.value;
+}
+
+function loadState() {
+    const saved = localStorage.getItem("uno_state");
+    if (saved) {
+        const state = JSON.parse(saved);
+        players = state.players || [];
+        scores = state.scores || [];
+        mode = state.mode || "500";
+        startPlayerIndex = state.startPlayerIndex ?? null;
+        if (players.length) {
+            document.getElementById("setup").style.display = "none";
+            document.getElementById("game").style.display = "block";
+            renderRoundInputs();
+            renderTable();
+        }
+    }
+}
+
+function startGame() {
+    const count = +document.getElementById("playerCount").value;
+    players = [];
+    for (let i = 0; i < count; i++) {
+        const name = document.getElementById("name_" + i).value || `Гравець ${i + 1}`;
+        players.push(name);
+    }
+    mode = document.getElementById("mode").value;
+    scores = [];
+    startPlayerIndex = null;
+    document.getElementById("setup").style.display = "none";
+    document.getElementById("game").style.display = "block";
+    renderRoundInputs();
+    renderTable();
+    saveState();
+
+    if (mode === "300") {
+        addFireToTitle();
+    }
+}
+
+function renderNameInputs() {
+    const count = +document.getElementById("playerCount").value;
+    const container = document.getElementById("names");
+    container.innerHTML = "";
+    for (let i = 0; i < count; i++) {
+        const input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = `Гравець ${i + 1}`;
+        input.id = "name_" + i;
+        input.className = "name-input";
+        container.appendChild(input);
+    }
+}
+
+document.getElementById("playerCount").addEventListener("input", renderNameInputs);
+renderNameInputs();
+loadState();
+
+function renderRoundInputs() {
+    const container = document.getElementById("roundInputs");
+    container.innerHTML = "";
+
+    const table = document.createElement("table");
+    table.style.marginTop = "1rem";
+
+    const headRow = document.createElement("tr");
+    players.forEach((p) => {
+        const th = document.createElement("th");
+        th.textContent = p;
+        table.appendChild(th);
+        headRow.appendChild(th);
+    });
+    table.appendChild(headRow);
+
+    const inputRow = document.createElement("tr");
+    players.forEach((_, i) => {
+        const td = document.createElement("td");
+        const input = document.createElement("input");
+        input.type = "tel";
+        input.inputMode = "numeric";
+        input.pattern = "-?[0-9]*";
+        input.placeholder = "Очки";
+        input.id = `score_${i}`;
+        input.className = "round-input";
+        td.appendChild(input);
+        inputRow.appendChild(td);
+    });
+    table.appendChild(inputRow);
+
+    // container.appendChild(document.createTextNode("..."));
+    // container.appendChild(document.createElement("br"));
+    container.appendChild(table);
+}
+
+function addRound(e) {
+    e.preventDefault();
+    let round = [];
+    let winnerIndexes = [];
+    let rawInputs = [];
+
+    for (let i = 0; i < players.length; i++) {
+        const val = document.getElementById(`score_${i}`).value.trim();
+        if (val === "-" || val === "") {
+            winnerIndexes.push(i);
+        } else {
+            rawInputs[i] = parseInt(val) || 0;
+        }
+    }
+
+    if (winnerIndexes.length !== 1) {
+        alert("У раунді переможець може бути лише один. Для переможця залишити поле пустим. Не 0");
+        return;
+    }
+
+    const winner = winnerIndexes[0];
+
+    if (mode === "500") {
+        let sum = 0;
+        for (let i = 0; i < players.length; i++) {
+            if (i !== winner && !isNaN(rawInputs[i])) {
+                sum += rawInputs[i];
             }
+        }
+        for (let i = 0; i < players.length; i++) {
+            round[i] = i === winner ? sum : 0;
+        }
+    } else {
+        for (let i = 0; i < players.length; i++) {
+            round[i] = i === winner ? 0 : rawInputs[i] || 0;
+        }
+    }
 
-            function selectMode(element) {
-                document.querySelectorAll(".mode-option").forEach((el) => el.classList.remove("selected"));
-                element.classList.add("selected");
-                document.getElementById("mode").value = element.dataset.value;
-            }
+    const roundObj = {
+        scores: round,
+        winner,
+        rawInputs
+    };
 
-            function loadState() {
-                const saved = localStorage.getItem("uno_state");
-                if (saved) {
-                    const state = JSON.parse(saved);
-                    players = state.players || [];
-                    scores = state.scores || [];
-                    mode = state.mode || "500";
-                    startPlayerIndex = state.startPlayerIndex ?? null;
-                    if (players.length) {
-                        document.getElementById("setup").style.display = "none";
-                        document.getElementById("game").style.display = "block";
-                        renderRoundInputs();
-                        renderTable();
-                    }
-                }
-            }
+    if (editIndex !== null) {
+        scores[editIndex] = roundObj;
+        editIndex = null;
+    } else {
+        scores.push(roundObj);
+    }
 
-            function startGame() {
-                const count = +document.getElementById("playerCount").value;
-                players = [];
-                for (let i = 0; i < count; i++) {
-                    const name = document.getElementById("name_" + i).value || `Гравець ${i + 1}`;
-                    players.push(name);
-                }
-                mode = document.getElementById("mode").value;
-                scores = [];
-                startPlayerIndex = null;
-                document.getElementById("setup").style.display = "none";
-                document.getElementById("game").style.display = "block";
-                renderRoundInputs();
-                renderTable();
-                saveState();
+    renderTable();
+    renderRoundInputs();
+    saveState();
+}
 
-                if (mode === "300") {
-                    addFireToTitle();
-                }
-            }
+function isStarEntry(roundIdx, playerIdx) {
+    const roundObj = scores[roundIdx];
+    return roundObj.winner === playerIdx;
+}
 
-            function renderNameInputs() {
-                const count = +document.getElementById("playerCount").value;
-                const container = document.getElementById("names");
-                container.innerHTML = "";
-                for (let i = 0; i < count; i++) {
-                    const input = document.createElement("input");
-                    input.type = "text";
-                    input.placeholder = `Гравець ${i + 1}`;
-                    input.id = "name_" + i;
-                    input.className = "name-input";
-                    container.appendChild(input);
-                }
-            }
+function setStartPlayer(index) {
+    startPlayerIndex = index;
+    saveState();
+    renderTable();
+}
 
-            document.getElementById("playerCount").addEventListener("input", renderNameInputs);
-            renderNameInputs();
-            loadState();
+function renderTable() {
+    const table = document.getElementById("scoreTable");
+    const message = document.getElementById("emptyTableMessage");
+    const tableContainer = document.querySelector(".scroll-container");
 
-            function renderRoundInputs() {
-                const container = document.getElementById("roundInputs");
-                container.innerHTML = "";
+    table.innerHTML = "";
 
-                const table = document.createElement("table");
-                table.style.marginTop = "1rem";
+    if (scores.length === 0) {
+        message.style.display = "block";
+        tableContainer.style.display = "none";
+        return;
+    } else {
+        message.style.display = "none";
+        tableContainer.style.display = "block";
+    }
 
-                const headRow = document.createElement("tr");
-                players.forEach((p) => {
-                    const th = document.createElement("th");
-                    th.textContent = p;
-                    table.appendChild(th);
-                    headRow.appendChild(th);
-                });
-                table.appendChild(headRow);
+    const starsPerPlayer = Array(players.length).fill(0);
+    const header = document.createElement("tr");
+    const goatIndexes = getGoatIndexes();
 
-                const inputRow = document.createElement("tr");
-                players.forEach((_, i) => {
-                    const td = document.createElement("td");
-                    const input = document.createElement("input");
-                    input.type = "tel";
-                    input.inputMode = "numeric";
-                    input.pattern = "-?[0-9]*";
-                    input.placeholder = "Очки";
-                    input.id = `score_${i}`;
-                    input.className = "round-input";
-                    td.appendChild(input);
-                    inputRow.appendChild(td);
-                });
-                table.appendChild(inputRow);
+    header.innerHTML = `<th>Раунд</th>` + players.map((p, i) => `<th ondblclick="setStartPlayer(${i})">${p} ${goatIndexes.includes(i) ? "🐐" : ""}</th>`).join("");
+    table.appendChild(header);
 
-                // container.appendChild(document.createTextNode("..."));
-                // container.appendChild(document.createElement("br"));
-                container.appendChild(table);
-            }
+    scores.forEach((roundObj, idx) => {
+        const row = roundObj.scores;
+        const tr = document.createElement("tr");
+        const currentPlayerIndex = startPlayerIndex !== null ? (startPlayerIndex + idx) % players.length : null;
 
-            function addRound(e) {
-                e.preventDefault();
-                let round = [];
-                let winnerIndexes = [];
-                let rawInputs = [];
+        const cells = players.map((_, i) => {
+            const isStar = isStarEntry(idx, i);
+            const isActive = i === currentPlayerIndex;
+            if (isStar) starsPerPlayer[i]++;
 
-                for (let i = 0; i < players.length; i++) {
-                    const val = document.getElementById(`score_${i}`).value.trim();
-                    if (val === "-" || val === "") {
-                        winnerIndexes.push(i);
-                    } else {
-                        rawInputs[i] = parseInt(val) || 0;
-                    }
-                }
-
-                if (winnerIndexes.length !== 1) {
-                    alert("У раунді переможець може бути лише один. Для переможця залишити поле пустим. Не 0");
-                    return;
-                }
-
-                const winner = winnerIndexes[0];
-
-                if (mode === "500") {
-                    let sum = 0;
-                    for (let i = 0; i < players.length; i++) {
-                        if (i !== winner && !isNaN(rawInputs[i])) {
-                            sum += rawInputs[i];
-                        }
-                    }
-                    for (let i = 0; i < players.length; i++) {
-                        round[i] = i === winner ? sum : 0;
-                    }
+            let displayValue;
+            if (mode === "500") {
+                if (isStar) {
+                    displayValue = "⭐";
                 } else {
-                    for (let i = 0; i < players.length; i++) {
-                        round[i] = i === winner ? 0 : rawInputs[i] || 0;
-                    }
+                    displayValue = roundObj.rawInputs?.[i] ?? 0;
                 }
-
-                const roundObj = {
-                    scores: round,
-                    winner,
-                    rawInputs
-                };
-
-                if (editIndex !== null) {
-                    scores[editIndex] = roundObj;
-                    editIndex = null;
-                } else {
-                    scores.push(roundObj);
-                }
-
-                renderTable();
-                renderRoundInputs();
-                saveState();
+            } else {
+                displayValue = isStar ? "⭐" : roundObj.scores[i];
             }
 
-            function isStarEntry(roundIdx, playerIdx) {
-                const roundObj = scores[roundIdx];
-                return roundObj.winner === playerIdx;
-            }
+            return `<td class="${isActive ? "active-cell" : ""}">${displayValue}</td>`;
+        });
 
-            function setStartPlayer(index) {
-                startPlayerIndex = index;
-                saveState();
-                renderTable();
-            }
+        tr.innerHTML = `<td>${idx + 1}<span class="edit-btn" onclick="editRound(${idx})">✏️</span></td>` + cells.join("");
+        table.appendChild(tr);
+    });
 
-            function renderTable() {
-                const table = document.getElementById("scoreTable");
-                const message = document.getElementById("emptyTableMessage");
-                const tableContainer = document.querySelector(".scroll-container");
+    const totalRow = document.createElement("tr");
+    totalRow.innerHTML =
+        `<td><strong>Сума</strong></td>` +
+        players
+        .map((_, i) => {
+            const sum = scores.reduce((a, r) => a + r.scores[i], 0);
+            return `<td><strong>${sum}</strong></td>`;
+        })
+        .join("");
+    table.appendChild(totalRow);
 
-                table.innerHTML = "";
+    stars = starsPerPlayer;
+    checkWinner();
+}
 
-                if (scores.length === 0) {
-                    message.style.display = "block";
-                    tableContainer.style.display = "none";
-                    return;
-                } else {
-                    message.style.display = "none";
-                    tableContainer.style.display = "block";
-                }
+function getGoatIndexes() {
+    const starCounts = players.map((_, i) => {
+        return scores.reduce((count, _, roundIdx) => {
+            return count + (isStarEntry(roundIdx, i) ? 1 : 0);
+        }, 0);
+    });
 
-                const starsPerPlayer = Array(players.length).fill(0);
-                const header = document.createElement("tr");
-                const goatIndexes = getGoatIndexes();
+    const maxStars = Math.max(...starCounts);
+    return starCounts.reduce((arr, count, i) => {
+        if (count === maxStars && maxStars > 0) arr.push(i);
+        return arr;
+    }, []);
+}
 
-                header.innerHTML = `<th>Раунд</th>` + players.map((p, i) => `<th ondblclick="setStartPlayer(${i})">${p} ${goatIndexes.includes(i) ? "🐐" : ""}</th>`).join("");
-                table.appendChild(header);
+function checkWinner() {
+    const totals = players.map((_, i) => scores.reduce((a, r) => a + r.scores[i], 0));
+    const resultDiv = document.getElementById("result");
 
-                scores.forEach((roundObj, idx) => {
-                    const row = roundObj.scores;
-                    const tr = document.createElement("tr");
-                    const currentPlayerIndex = startPlayerIndex !== null ? (startPlayerIndex + idx) % players.length : null;
+    let message = "";
 
-                    const cells = players.map((_, i) => {
-                        const isStar = isStarEntry(idx, i);
-                        const isActive = i === currentPlayerIndex;
-                        if (isStar) starsPerPlayer[i]++;
-
-                        let displayValue;
-                        if (mode === "500") {
-                            if (isStar) {
-                                displayValue = "⭐";
-                            } else {
-                                displayValue = roundObj.rawInputs?.[i] ?? 0;
-                            }
-                        } else {
-                            displayValue = isStar ? "⭐" : roundObj.scores[i];
-                        }
-
-                        return `<td class="${isActive ? "active-cell" : ""}">${displayValue}</td>`;
-                    });
-
-                    tr.innerHTML = `<td>${idx + 1}<span class="edit-btn" onclick="editRound(${idx})">✏️</span></td>` + cells.join("");
-                    table.appendChild(tr);
-                });
-
-                const totalRow = document.createElement("tr");
-                totalRow.innerHTML =
-                    `<td><strong>Сума</strong></td>` +
-                    players
-                    .map((_, i) => {
-                        const sum = scores.reduce((a, r) => a + r.scores[i], 0);
-                        return `<td><strong>${sum}</strong></td>`;
-                    })
-                    .join("");
-                table.appendChild(totalRow);
-
-                stars = starsPerPlayer;
-                checkWinner();
-            }
-
-            function getGoatIndexes() {
-                const starCounts = players.map((_, i) => {
-                    return scores.reduce((count, _, roundIdx) => {
-                        return count + (isStarEntry(roundIdx, i) ? 1 : 0);
-                    }, 0);
-                });
-
-                const maxStars = Math.max(...starCounts);
-                return starCounts.reduce((arr, count, i) => {
-                    if (count === maxStars && maxStars > 0) arr.push(i);
-                    return arr;
-                }, []);
-            }
-
-            function checkWinner() {
-                const totals = players.map((_, i) => scores.reduce((a, r) => a + r.scores[i], 0));
-                const resultDiv = document.getElementById("result");
-
-                let message = "";
-
-                if (mode === "500") {
-                    const winnerIndexes = totals.map((t, i) => (t >= 500 ? i : -1)).filter((i) => i !== -1);
-                    if (winnerIndexes.length) {
-                        message = winnerIndexes.map((i) => `<h2>🏆 ${players[i]} переміг!</h2>`).join("");
-                    }
-                } else {
-                    const loserIndexes = totals.map((t, i) => (t >= 300 ? i : -1)).filter((i) => i !== -1);
-                    if (loserIndexes.length) {
-                        message = loserIndexes.map((i) => {
-                            const randomMsg = funnyMessages[Math.floor(Math.random() * funnyMessages.length)]
-                                .replace(/{{player}}/g, players[i]);
-                            return `<h2 style="margin-bottom: 0;">💀 ${players[i]} програв!</h2>
+    if (mode === "500") {
+        const winnerIndexes = totals.map((t, i) => (t >= 500 ? i : -1)).filter((i) => i !== -1);
+        if (winnerIndexes.length) {
+            message = winnerIndexes.map((i) => `<h2>🏆 ${players[i]} переміг!</h2>`).join("");
+        }
+    } else {
+        const loserIndexes = totals.map((t, i) => (t >= 300 ? i : -1)).filter((i) => i !== -1);
+        if (loserIndexes.length) {
+            message = loserIndexes.map((i) => {
+                const randomMsg = funnyMessages[Math.floor(Math.random() * funnyMessages.length)]
+                    .replace(/{{player}}/g, players[i]);
+                return `<h2 style="margin-bottom: 0;">💀 ${players[i]} програв!</h2>
                        <p style="margin-top: 4px; text-align: center;">${randomMsg}</p>`;
-                        }).join("");
-                    }
-                }
+            }).join("");
+        }
+    }
 
-                if (message) {
-                    resultDiv.innerHTML = message;
-                }
-            }
+    if (message) {
+        resultDiv.innerHTML = message;
+    }
+}
 
-            function editRound(index) {
-                const roundObj = scores[index];
-                const winner = roundObj.winner;
+function editRound(index) {
+    const roundObj = scores[index];
+    const winner = roundObj.winner;
 
-                players.forEach((_, i) => {
-                    if (i === winner) {
-                        document.getElementById(`score_${i}`).value = "";
-                    } else {
-                        document.getElementById(`score_${i}`).value = roundObj.rawInputs?.[i] ?? 0;
-                    }
-                });
+    players.forEach((_, i) => {
+        if (i === winner) {
+            document.getElementById(`score_${i}`).value = "";
+        } else {
+            document.getElementById(`score_${i}`).value = roundObj.rawInputs?.[i] ?? 0;
+        }
+    });
 
-                editIndex = index;
-            }
+    editIndex = index;
+}
 
-            function confirmRestart() {
-                document.getElementById("confirmDialog").style.display = "flex";
-                document.getElementById("confirmBox").dataset.type = "soft";
-            }
+function confirmRestart() {
+    document.getElementById("confirmDialog").style.display = "flex";
+    document.getElementById("confirmBox").dataset.type = "soft";
+}
 
-            function confirmFullRestart() {
-                document.getElementById("confirmDialog").style.display = "flex";
-                document.getElementById("confirmBox").dataset.type = "hard";
-            }
+function confirmFullRestart() {
+    document.getElementById("confirmDialog").style.display = "flex";
+    document.getElementById("confirmBox").dataset.type = "hard";
+}
 
-            function cancelRestart() {
-                document.getElementById("confirmDialog").style.display = "none";
-            }
+function cancelRestart() {
+    document.getElementById("confirmDialog").style.display = "none";
+}
 
-            function doRestart() {
-                const type = document.getElementById("confirmBox").dataset.type;
-                document.getElementById("confirmDialog").style.display = "none";
+function doRestart() {
+    const type = document.getElementById("confirmBox").dataset.type;
+    document.getElementById("confirmDialog").style.display = "none";
 
-                if (type === "soft") {
-                    scores = [];
-                    document.getElementById("result").innerHTML = "";
-                    renderTable();
-                    renderRoundInputs();
-                    saveState();
-                } else {
-                    players = [];
-                    scores = [];
-                    mode = "500";
-                    startPlayerIndex = null;
-                    localStorage.removeItem("uno_state");
-                    document.getElementById("setup").style.display = "block";
-                    document.getElementById("game").style.display = "none";
-                    document.getElementById("result").innerHTML = "";
-                    document.getElementById("title").classList.remove("fire-mode");
-                    document.getElementById("title").innerHTML = "UNO";
-                    renderNameInputs();
-                }
-            }
+    if (type === "soft") {
+        scores = [];
+        document.getElementById("result").innerHTML = "";
+        renderTable();
+        renderRoundInputs();
+        saveState();
+    } else {
+        players = [];
+        scores = [];
+        mode = "500";
+        startPlayerIndex = null;
+        localStorage.removeItem("uno_state");
+        document.getElementById("setup").style.display = "block";
+        document.getElementById("game").style.display = "none";
+        document.getElementById("result").innerHTML = "";
+        document.getElementById("title").classList.remove("fire-mode");
+        document.getElementById("title").innerHTML = "UNO";
+        renderNameInputs();
+    }
+}
 
-            function selectMode(el) {
-                // зняти попередній вибір
-                document.querySelectorAll(".mode-option").forEach((option) => option.classList.remove("selected"));
-                el.classList.add("selected");
+function selectMode(el) {
+    // зняти попередній вибір
+    document.querySelectorAll(".mode-option").forEach((option) => option.classList.remove("selected"));
+    el.classList.add("selected");
 
-                // записати вибране значення
-                document.getElementById("mode").value = el.getAttribute("data-value");
+    // записати вибране значення
+    document.getElementById("mode").value = el.getAttribute("data-value");
 
-                // оновити клас на setup-card для кольорових стилів
-                const setupCard = document.querySelector(".setup-card");
-                setupCard.classList.remove("zaruba-mode", "classic-mode");
+    // оновити клас на setup-card для кольорових стилів
+    const setupCard = document.querySelector(".setup-card");
+    setupCard.classList.remove("zaruba-mode", "classic-mode");
 
-                if (el.getAttribute("data-value") === "300") {
-                    setupCard.classList.add("zaruba-mode");
-                } else if (el.getAttribute("data-value") === "500") {
-                    setupCard.classList.add("classic-mode");
-                }
-            }
+    if (el.getAttribute("data-value") === "300") {
+        setupCard.classList.add("zaruba-mode");
+    } else if (el.getAttribute("data-value") === "500") {
+        setupCard.classList.add("classic-mode");
+    }
+}
 
-            function addFireToTitle() {
-                const title = document.getElementById("title");
-                title.classList.add("fire-mode");
-                title.innerHTML = `<img src="fire.gif" alt="fire">  UNO  <img src="fire.gif" alt="fire">`;
-            }
-            const funnyMessages = [
-                `Схоже, що сьогодні не {{player}} день 🎲`,
-                `Ну буває, {{player}}, наступного разу повезе! 😂`,
-                `Можна я за тебе зіграю? 😜`,
-                `UNO каже {{player}}: спробуй ще 🔥`,
-                `🐸 не врятувала {{player}}`,
-                `Діла ішли не те шо х..во, но і нізя сказать шо харашо`,
-                `UNO каже {{player}}: спробуй ще 🔥`,
-                `Схоже, {{player}} сьогодні залишив удачу вдома 😅`,
-                `{{player}}, UNO тебе зробило 👊`,
-                `Ну що, {{player}}, каву з поразкою будеш? ☕️😂`,
-                `В кого мінус мораль? Правильно, в {{player}} 🎲`,
-                `{{player}}, наступного разу візьми талісман 🍀`,
-                `UNO каже: {{player}}, спробуй ще 🔥`,
-                `{{player}}, ти офіційно головний спонсор чужих очок 🎁`,
-                `Легенди казали, що {{player}} колись вигравав... але це не точно 😆`,
-                `Рекорд по антирезультату! {{player}}, ти топчик 💀`,
-                `Так тримати, {{player}}! І наступного разу програєш стильно 🎉`,
-                `UNO: {{player}}, підпиши контракт лузера 📝`,
-                `Навіть картковий оракул передбачав твою поразку, {{player}} 🔮`,
-                `UNO кричить: Астанавітєсь! Але {{player}} продовжує набирати очки 📈`,
-                `Хтось викличе швидку для {{player}} — UNO вбиває 💥`,
-                `{{player}}, спойлер: ти все одно програв би 😏`,
-                `{{player}}, це була найкраща НАЙШІРША гра яку я бачив`,
-                `{{player}}, просто подякуй за останню чорну +4 карточку`
-            ];
+function addFireToTitle() {
+    const title = document.getElementById("title");
+    title.classList.add("fire-mode");
+    title.innerHTML = `<img src="fire.gif" alt="fire">  UNO  <img src="fire.gif" alt="fire">`;
+}
+const funnyMessages = [
+    `Схоже, що сьогодні не {{player}} день 🎲`,
+    `Ну буває, {{player}}, наступного разу повезе! 😂`,
+    `Можна я за тебе зіграю? 😜`,
+    `UNO каже {{player}}: спробуй ще 🔥`,
+    `🐸 не врятувала {{player}}`,
+    `Діла ішли не те шо х..во, но і нізя сказать шо харашо`,
+    `UNO каже {{player}}: спробуй ще 🔥`,
+    `Схоже, {{player}} сьогодні залишив удачу вдома 😅`,
+    `{{player}}, UNO тебе зробило 👊`,
+    `Ну що, {{player}}, каву з поразкою будеш? ☕️😂`,
+    `В кого мінус мораль? Правильно, в {{player}} 🎲`,
+    `{{player}}, наступного разу візьми талісман 🍀`,
+    `UNO каже: {{player}}, спробуй ще 🔥`,
+    `{{player}}, ти офіційно головний спонсор чужих очок 🎁`,
+    `Легенди казали, що {{player}} колись вигравав... але це не точно 😆`,
+    `Рекорд по антирезультату! {{player}}, ти топчик 💀`,
+    `Так тримати, {{player}}! І наступного разу програєш стильно 🎉`,
+    `UNO: {{player}}, підпиши контракт лузера 📝`,
+    `Навіть картковий оракул передбачав твою поразку, {{player}} 🔮`,
+    `UNO кричить: Астанавітєсь! Але {{player}} продовжує набирати очки 📈`,
+    `Хтось викличе швидку для {{player}} — UNO вбиває 💥`,
+    `{{player}}, спойлер: ти все одно програв би 😏`,
+    `{{player}}, це була найкраща НАЙШІРША гра яку я бачив`,
+    `{{player}}, просто подякуй за останню чорну +4 карточку`
+];
 
+
+let currentStation = 2;
+const audioPlayer = document.getElementById("audioPlayer");
+const playPauseBtn = document.getElementById("playPauseBtn");
+const nextStationBtn = document.getElementById("nextStationBtn");
+const stationTooltip = document.getElementById("stationTooltip");
+let hideTimeout;
+
+const stations = [{
+        url: "http://stream.radioskovoroda.com:8000/radioskovoroda",
+        name: "Radio Skovoroda"
+    },
+    {
+        url: "http://stream.radioskovoroda.com:8060/skovoroda_music",
+        name: "Skovoroda Music"
+    },
+    {
+        url: "https://online.kissfm.ua/KissFM_HD",
+        name: "KissFM Efir"
+    },
+    {
+        url: "https://online.kissfm.ua/KissFM_Ukr_HD",
+        name: "KissFM Ukr"
+    },
+    {
+        url: "https://768260.radio.tvstitch.com/radio.mp3?station=kiss_fm_deep",
+        name: "KissFM Deep"
+    },
+    {
+        url: "https://768260.radio.tvstitch.com/radio.mp3?station=kiss_fm_digital",
+        name: "KissFM Digital"
+    },
+    {
+        url: "https://tavr.radio.tvstitch.com/HitFM_Best_HD",
+        name: "HitFM Best"
+    },
+    {
+        url: "https://online.hitfm.ua/HitFM_HD",
+        name: "HitFM Efir"
+    },
+    {
+        url: "https://tavr.radio.tvstitch.com/HitFM_Top_HD",
+        name: "HitFM Top"
+    },
+    {
+        url: "https://tavr.radio.tvstitch.com/HitFM_Ukr_HD",
+        name: "HitFM Ukr Hits"
+    }
+];
+
+// Запуск станції
+function playStation(index) {
+    audioPlayer.src = stations[index].url;
+    audioPlayer.play();
+    playPauseBtn.textContent = "⏸️";
+    showStationTooltip(stations[index].name); // виклик оновленої функції
+}
+
+// Показати тултіп з назвою станції (оновлена версія)
+function showStationTooltip(name) {
+    stationTooltip.textContent = name;
+    stationTooltip.style.opacity = "1";
+
+    // Отримуємо позицію кнопки nextStationBtn
+    const btnRect = nextStationBtn.getBoundingClientRect();
+
+    // Позиціонуємо тултіп праворуч і по центру кнопки
+    stationTooltip.style.top = (btnRect.top + window.scrollY + btnRect.height / 2 - stationTooltip.offsetHeight / 2) + "px";
+    stationTooltip.style.left = (btnRect.right + window.scrollX + 8) + "px"; // +8px відступ праворуч від кнопки
+
+    clearTimeout(hideTimeout);
+    hideTimeout = setTimeout(() => {
+        stationTooltip.style.opacity = "0";
+    }, 10000);
+}
+
+// Плей/Пауза
+playPauseBtn.addEventListener("click", () => {
+    if (!audioPlayer.src) {
+        playStation(currentStation);
+    } else if (audioPlayer.paused) {
+        audioPlayer.play();
+        playPauseBtn.textContent = "⏸️";
+    } else {
+        audioPlayer.pause();
+        playPauseBtn.textContent = "▶️";
+    }
+});
+
+// Наступна станція
+nextStationBtn.addEventListener("click", () => {
+    currentStation = (currentStation + 1) % stations.length;
+    playStation(currentStation);
+});
+      
     </script>
 </body>
 
