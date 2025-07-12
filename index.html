@@ -372,7 +372,9 @@
                 height: 100%;
                 background: rgba(0, 0, 0, 0.8);
                 justify-content: center;
-                align-items: center;
+                align-items: flex-start; /* ← зміна! Розміщення зверху */
+                overflow-y: auto; /* ← дозволяє прокрутку */
+                padding-top: 15px; /* ← мінімальний відступ згори */
                 z-index: 1000;
             }
             #infoBox {
@@ -384,6 +386,7 @@
                 max-width: 90%;
                 width: 400px;
                 box-shadow: 0 0 20px #000;
+                margin: auto; /* ← центрування по горизонталі */
             }
             #infoBox button {
                 display: block;
@@ -923,16 +926,8 @@
 
             const stations = [
                 {
-                    url: "http://stream.radioskovoroda.com:8000/radioskovoroda",
-                    name: "Радіо Сковорода",
-                },
-                {
                     url: "https://tavr.radio.tvstitch.com/HitFM_Ukr_HD",
                     name: "HitFM Ukr Hits",
-                },
-                {
-                    url: "http://stream.radioskovoroda.com:8060/skovoroda_music",
-                    name: "Сковорода Music",
                 },
                 {
                     url: "https://online.kissfm.ua/KissFM_HD",
@@ -954,6 +949,14 @@
                     url: "https://tavr.radio.tvstitch.com/HitFM_Top_HD",
                     name: "HitFM Top",
                 },
+                {
+                    url: "http://stream.radioskovoroda.com:8000/radioskovoroda",
+                    name: "Радіо Сковорода",
+                },
+                {
+                    url: "http://stream.radioskovoroda.com:8060/skovoroda_music",
+                    name: "Сковорода Music",
+                }
             ];
 
             // Запуск станції
